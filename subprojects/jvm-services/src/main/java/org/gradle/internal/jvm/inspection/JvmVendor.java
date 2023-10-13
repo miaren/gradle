@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public interface JvmVendor {
 
     enum KnownJvmVendor {
-        ADOPTIUM("adoptium", "temurin|adoptium|eclipse foundation", "Eclipse Temurin"),
+        ADOPTIUM("adoptium", "temurin|adoptium|eclipse foundation|openjdk", "Eclipse Temurin"),
         ADOPTOPENJDK("adoptopenjdk", "AdoptOpenJDK"),
         AMAZON("amazon", "Amazon Corretto"),
         APPLE("apple", "Apple"),
