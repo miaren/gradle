@@ -11,7 +11,6 @@ if (testToolchain == "knownVendor") {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
-        vendor = JvmVendorSpec.ADOPTIUM
     }
 }
 // end::toolchain-known-vendor[]

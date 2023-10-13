@@ -278,6 +278,17 @@ class PerformanceTestPlugin : Plugin<Project> {
 
     private
     fun Project.configureAndroidStudioInstallation() {
+        val extension = when {
+            isWindows -> "windows.zip"
+            isMacOsX && isIntel -> "mac.zip"
+            isMacOsX && !isIntel -> "mac_arm.zip"
+            isLinux -> "linux.tar.gz"
+            else -> {
+                logger.warn("Unsupported OS: ${OperatingSystem.current()}")
+                return
+            }
+        }
+
         repositories {
             ivy {
                 // Url of Android Studio archive
@@ -294,13 +305,6 @@ class PerformanceTestPlugin : Plugin<Project> {
 
         val androidStudioRuntime by configurations.creating
         dependencies {
-            val extension = when {
-                isWindows -> "windows.zip"
-                isMacOsX && isIntel -> "mac.zip"
-                isMacOsX && !isIntel -> "mac_arm.zip"
-                isLinux -> "linux.tar.gz"
-                else -> throw IllegalStateException("Unsupported OS: ${OperatingSystem.current()}")
-            }
             androidStudioRuntime("android-studio:android-studio:$androidStudioVersion@$extension")
         }
 
