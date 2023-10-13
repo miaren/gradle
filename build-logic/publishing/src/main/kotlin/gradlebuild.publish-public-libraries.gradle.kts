@@ -44,7 +44,7 @@ publishing {
         maven {
             name = "remote"
             val libsType = moduleIdentity.snapshot.map { if (it) "snapshots" else "releases" }
-            url = uri("$artifactoryUrl/libs-${libsType.get()}-local")
+            url = uri("$artifactoryUrl/maven-${libsType.get()}")
             credentials {
                 username = artifactoryUserName
                 password = artifactoryUserPassword
