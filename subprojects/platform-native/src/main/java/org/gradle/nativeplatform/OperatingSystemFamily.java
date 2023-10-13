@@ -78,6 +78,20 @@ public abstract class OperatingSystemFamily implements Named {
         return is(MACOS);
     }
 
+    /**
+     * The FreeBSD operating system family.
+     *
+     */
+    public static final String FREEBSD = "freebsd";
+
+    /**
+     * Is this the FreeBSD operating system family?
+     *
+     */
+    public boolean isFreeBSD() {
+        return is(FREEBSD);
+    }
+
     private boolean is(String osFamily) {
         return getName().equals(osFamily);
     }
