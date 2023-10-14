@@ -57,6 +57,11 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
     }
 
     @Override
+    public TargetMachineBuilder getFreeBSD() {
+        return new TargetMachineImpl(objectFactory.named(OperatingSystemFamily.class, OperatingSystemFamily.FREEBSD), getDefaultArchitecture());
+    }
+
+    @Override
     public TargetMachineBuilder os(String operatingSystemFamily) {
         return new TargetMachineImpl(objectFactory.named(OperatingSystemFamily.class, operatingSystemFamily), getDefaultArchitecture());
     }
@@ -78,6 +83,11 @@ public class DefaultTargetMachineFactory implements TargetMachineFactory {
         @Override
         public TargetMachine getX86_64() {
             return new TargetMachineImpl(getOperatingSystemFamily(), objectFactory.named(MachineArchitecture.class, MachineArchitecture.X86_64));
+        }
+
+        @Override
+        public TargetMachine getArm64() {
+            return new TargetMachineImpl(getOperatingSystemFamily(), objectFactory.named(MachineArchitecture.class, MachineArchitecture.ARM64));
         }
 
         @Override

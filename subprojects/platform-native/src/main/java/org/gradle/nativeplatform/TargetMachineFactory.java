@@ -38,6 +38,11 @@ public interface TargetMachineFactory {
     TargetMachineBuilder getMacOS();
 
     /**
+     * Returns a {@link TargetMachineBuilder} for the FreeBSD operating system family and the architecture of the current host.
+     */
+    TargetMachineBuilder getFreeBSD();
+
+    /**
      * Returns a {@link TargetMachineBuilder} representing the specified operating system and the architecture of the current host.
      */
     TargetMachineBuilder os(String operatingSystemFamily);

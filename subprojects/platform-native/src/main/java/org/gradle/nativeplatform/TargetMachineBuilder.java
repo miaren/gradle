@@ -33,6 +33,11 @@ public interface TargetMachineBuilder extends TargetMachine {
     TargetMachine getX86_64();
 
     /**
+     * Returns a {@link TargetMachine} for the operating system of this machine and the x86 64-bit architecture
+     */
+    TargetMachine getArm64();
+
+    /**
      * Returns a {@link TargetMachine} for the operating system of this machine and the specified architecture.
      */
     TargetMachine architecture(String architecture);
