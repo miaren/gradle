@@ -26,6 +26,5 @@ internal
 fun JavaPluginExtension.configureJavaToolChain() {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
-        vendor = JvmVendorSpec.ADOPTIUM
     }
 }

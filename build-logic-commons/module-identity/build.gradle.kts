@@ -9,7 +9,6 @@ group = "gradlebuild"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
-        vendor = JvmVendorSpec.ADOPTIUM
     }
 }
 
