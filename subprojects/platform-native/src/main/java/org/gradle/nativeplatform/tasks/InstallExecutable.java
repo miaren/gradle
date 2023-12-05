@@ -259,7 +259,7 @@ public abstract class InstallExecutable extends DefaultTask {
         getFileSystem().chmod(runScript, 0755);
     }
 
-    private void installToDir(final File binaryDir, final File executableFile, final Collection<File> libs) {
+    protected void installToDir(final File binaryDir, final File executableFile, final Collection<File> libs) {
         getFileSystemOperations().sync(copySpec -> {
             copySpec.into(binaryDir);
             copySpec.from(executableFile);
