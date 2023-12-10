@@ -32,6 +32,13 @@ public interface LinkerSpec extends BinaryToolSpec {
 
     void libraries(Iterable<File> libraries);
 
+    /**
+     * Specify which static libraries should be included as whole archives (ELF only).
+     */
+    void wholeArchives(Iterable<File> libraries);
+
+    List<File> getWholeArchives();
+
     List<File> getLibraryPath();
 
     void libraryPath(File... libraryPath);

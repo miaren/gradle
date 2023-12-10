@@ -16,6 +16,7 @@
 
 package org.gradle.nativeplatform.toolchain.internal.gcc;
 
+import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Action;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.operations.BuildOperationQueue;
@@ -62,6 +63,8 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
         public List<String> transform(LinkerSpec spec) {
             List<String> args = new ArrayList<String>();
 
+            ImmutableSet<File> wholeArchives = ImmutableSet.copyOf(spec.getWholeArchives());
+
             args.addAll(spec.getSystemArgs());
 
             if (spec instanceof SharedLibraryLinkerSpec) {
@@ -74,7 +77,12 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
                 args.add(file.getAbsolutePath());
             }
             for (File file : spec.getLibraries()) {
+                boolean wholeArchive = wholeArchives.contains(file);
+                if (wholeArchive)
+                    args.add("-Wl,-whole-archive");
                 args.add(file.getAbsolutePath());
+                if (wholeArchive)
+                    args.add("-Wl,-no-whole-archive");
             }
             if (!spec.getLibraryPath().isEmpty()) {
                 throw new UnsupportedOperationException("Library Path not yet supported on GCC");

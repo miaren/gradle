@@ -26,6 +26,7 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     private final List<File> objectFiles = new ArrayList<File>();
     private final List<File> libraries = new ArrayList<File>();
     private final List<File> libraryPath = new ArrayList<File>();
+    private final List<File> wholeArchives = new ArrayList<File>();
     private File outputFile;
     private boolean debuggable;
 
@@ -47,6 +48,16 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     @Override
     public void libraries(Iterable<File> libraries) {
         addAll(this.libraries, libraries);
+    }
+
+    @Override
+    public void wholeArchives(Iterable<File> libraries) {
+        addAll(this.wholeArchives, libraries);
+    }
+
+    @Override
+    public List<File> getWholeArchives() {
+        return wholeArchives;
     }
 
     @Override
