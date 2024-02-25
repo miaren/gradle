@@ -10,7 +10,7 @@ if (testToolchain == "knownVendor") {
 // tag::toolchain-known-vendor[]
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 // end::toolchain-known-vendor[]
@@ -19,7 +19,7 @@ java {
 // tag::toolchain-matching-vendor[]
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
         vendor = JvmVendorSpec.matching("customString")
     }
 }
@@ -29,7 +29,7 @@ java {
 // tag::toolchain-matching-implementation[]
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
         vendor = JvmVendorSpec.IBM
         implementation = JvmImplementation.J9
     }

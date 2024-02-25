@@ -93,7 +93,7 @@ val TaskContainer.yetAnotherSampleTask
 // tag::java-executable[]
 // tag::java-home[]
 val launcher = javaToolchains.launcherFor {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
 }
 // end::java-executable[]
 // end::java-home[]
@@ -116,7 +116,7 @@ tasks.anotherSampleTask {
 
 // tag::java-compiler[]
 val compiler = javaToolchains.compilerFor {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
 }
 
 tasks.yetAnotherSampleTask {

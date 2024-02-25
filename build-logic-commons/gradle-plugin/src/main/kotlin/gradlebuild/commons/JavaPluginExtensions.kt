@@ -25,6 +25,6 @@ import org.gradle.kotlin.dsl.*
 internal
 fun JavaPluginExtension.configureJavaToolChain() {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }

@@ -259,6 +259,15 @@ public enum JavaVersion {
         return this == VERSION_12;
     }
 
+    /**
+     * Returns if the version is Java 17.
+     *
+     * @since 8.5-miaren
+     */
+    public boolean isJava17() {
+        return this == VERSION_17;
+    }
+
     public boolean isJava5Compatible() {
         return isCompatibleWith(VERSION_1_5);
     }
