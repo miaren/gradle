@@ -19,7 +19,6 @@ package org.gradle.api.internal.artifacts.configurations;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import groovy.lang.Closure;
 import org.apache.commons.lang.WordUtils;
 import org.gradle.api.Action;
@@ -139,6 +138,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -195,7 +195,7 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
     private final FileCollectionFactory fileCollectionFactory;
     private final ResolveExceptionContextualizer exceptionContextualizer;
 
-    private final Set<MutationValidator> childMutationValidators = Sets.newHashSet();
+    private final Set<MutationValidator> childMutationValidators = new HashSet<>();
     private final MutationValidator parentMutationValidator = DefaultConfiguration.this::validateParentMutation;
     private final RootComponentMetadataBuilder rootComponentMetadataBuilder;
     private final ConfigurationsProvider configurationsProvider;
@@ -732,7 +732,7 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
                 // Discard State
                 dependencyResolutionListeners.removeAll();
                 if (resolutionStrategy != null) {
-                    resolutionStrategy.discardStateRequiredForGraphResolution();
+                    resolutionStrategy.maybeDiscardStateRequiredForGraphResolution();
                 }
 
                 captureBuildOperationResult(context, results);
@@ -802,7 +802,7 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
     }
 
     private void assertNoDependencyResolutionConsistencyCycle() {
-        Set<ConfigurationInternal> sources = Sets.newLinkedHashSet();
+        Set<ConfigurationInternal> sources = new LinkedHashSet<>();
         ConfigurationInternal src = this;
         while (src != null) {
             if (!sources.add(src)) {
@@ -864,9 +864,19 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
     }
 
     @Override
-    public void resetResolutionState() {
-        warnOnInvalidInternalAPIUsage("resetResolutionState()", ProperMethodUsage.RESOLVABLE);
-        currentResolveState.set(ResolveState.NOT_RESOLVED);
+    public <T> T callAndResetResolutionState(Factory<T> factory) {
+        warnOnInvalidInternalAPIUsage("callAndResetResolutionState()", ProperMethodUsage.RESOLVABLE);
+        try {
+            // Prevent the state required for resolution from being discarded if anything in the
+            // factory resolves this configuration
+            getResolutionStrategy().setKeepStateRequiredForGraphResolution(true);
+
+            return factory.create();
+        } finally {
+            // Reset this configuration to an unresolved state
+            getResolutionStrategy().setKeepStateRequiredForGraphResolution(false);
+            currentResolveState.set(ResolveState.NOT_RESOLVED);
+        }
     }
 
     private ResolverResults getResultsForBuildDependencies() {
@@ -940,6 +950,7 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
 
     @Override
     public boolean hasDependencies() {
+        runDependencyActions();
         return !getAllDependencies().isEmpty();
     }
 
@@ -1030,7 +1041,7 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
 
     @Override
     public Set<ExcludeRule> getAllExcludeRules() {
-        Set<ExcludeRule> result = Sets.newLinkedHashSet();
+        Set<ExcludeRule> result = new LinkedHashSet<>();
         result.addAll(getExcludeRules());
         for (Configuration config : extendsFrom) {
             result.addAll(((ConfigurationInternal) config).getAllExcludeRules());
@@ -1044,7 +1055,7 @@ public abstract class DefaultConfiguration extends AbstractFileCollection implem
     private synchronized void initExcludeRules() {
         if (parsedExcludeRules == null) {
             NotationParser<Object, ExcludeRule> parser = ExcludeRuleNotationConverter.parser();
-            parsedExcludeRules = Sets.newLinkedHashSet();
+            parsedExcludeRules = new LinkedHashSet<>();
             for (Object excludeRule : excludeRules) {
                 parsedExcludeRules.add(parser.parseNotation(excludeRule));
             }
