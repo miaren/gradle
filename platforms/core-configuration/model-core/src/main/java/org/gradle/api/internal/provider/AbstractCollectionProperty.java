@@ -19,6 +19,7 @@ package org.gradle.api.internal.provider;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import org.gradle.api.Action;
+import org.gradle.api.Transformer;
 import org.gradle.api.internal.provider.Collectors.ElementFromProvider;
 import org.gradle.api.internal.provider.Collectors.ElementsFromArray;
 import org.gradle.api.internal.provider.Collectors.ElementsFromCollection;
@@ -34,7 +35,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class AbstractCollectionProperty<T, C extends Collection<T>> extends AbstractProperty<C, CollectionSupplier<T, C>> implements CollectionPropertyInternal<T, C> {
+public abstract class AbstractCollectionProperty<T, C extends Collection<T>> extends AbstractProperty<C, CollectionSupplier<T, C>>
+    implements CollectionPropertyInternal<T, C> {
+
     private static final CollectionSupplier<Object, Collection<Object>> NO_VALUE = new NoValueSupplier<>(Value.missing());
     private final Class<? extends Collection> collectionType;
     private final Class<T> elementType;
@@ -185,12 +188,12 @@ public abstract class AbstractCollectionProperty<T, C extends Collection<T>> ext
     }
 
     @Override
-    protected Value<? extends C> calculateValueFrom(CollectionSupplier<T, C> value, ValueConsumer consumer) {
+    protected Value<? extends C> calculateValueFrom(EvaluationContext.ScopeContext context, CollectionSupplier<T, C> value, ValueConsumer consumer) {
         return value.calculateValue(consumer);
     }
 
     @Override
-    protected CollectionSupplier<T, C> finalValue(CollectionSupplier<T, C> value, ValueConsumer consumer) {
+    protected CollectionSupplier<T, C> finalValue(EvaluationContext.ScopeContext context, CollectionSupplier<T, C> value, ValueConsumer consumer) {
         Value<? extends C> result = value.calculateValue(consumer);
         if (!result.isMissing()) {
             return new FixedSupplier<>(result.getWithoutSideEffect(), Cast.uncheckedCast(result.getSideEffect()));
@@ -202,7 +205,7 @@ public abstract class AbstractCollectionProperty<T, C extends Collection<T>> ext
     }
 
     @Override
-    protected ExecutionTimeValue<? extends C> calculateOwnExecutionTimeValue(CollectionSupplier<T, C> value) {
+    protected ExecutionTimeValue<? extends C> calculateOwnExecutionTimeValue(EvaluationContext.ScopeContext context, CollectionSupplier<T, C> value) {
         return value.calculateExecutionTimeValue();
     }
 
@@ -224,7 +227,7 @@ public abstract class AbstractCollectionProperty<T, C extends Collection<T>> ext
 
     @Override
     protected String describeContents() {
-        return String.format("%s(%s, %s)", collectionType.getSimpleName().toLowerCase(), elementType, getSupplier().toString());
+        return String.format("%s(%s, %s)", collectionType.getSimpleName().toLowerCase(), elementType, describeValue());
     }
 
     static class NoValueSupplier<T, C extends Collection<? extends T>> implements CollectionSupplier<T, C> {
@@ -484,6 +487,15 @@ public abstract class AbstractCollectionProperty<T, C extends Collection<T>> ext
         @Override
         public ValueProducer getProducer() {
             return left.getProducer().plus(right.getProducer());
+        }
+    }
+
+    public void update(Transformer<? extends @org.jetbrains.annotations.Nullable Provider<? extends Iterable<? extends T>>, ? super Provider<C>> transform) {
+        Provider<? extends Iterable<? extends T>> newValue = transform.transform(shallowCopy());
+        if (newValue != null) {
+            set(newValue);
+        } else {
+            set((Iterable<? extends T>) null);
         }
     }
 }

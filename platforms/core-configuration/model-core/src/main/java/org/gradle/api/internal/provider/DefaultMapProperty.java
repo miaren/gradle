@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Action;
+import org.gradle.api.Transformer;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Provider;
 
@@ -232,18 +233,27 @@ public class DefaultMapProperty<K, V> extends AbstractProperty<Map<K, V>, MapSup
         return new KeySetProvider();
     }
 
-    @Override
-    protected String describeContents() {
-        return String.format("Map(%s->%s, %s)", keyType.getSimpleName().toLowerCase(), valueType.getSimpleName(), getSupplier());
+    public void update(Transformer<? extends @org.jetbrains.annotations.Nullable Provider<? extends Map<? extends K, ? extends V>>, ? super Provider<Map<K, V>>> transform) {
+        Provider<? extends Map<? extends K, ? extends V>> newValue = transform.transform(shallowCopy());
+        if (newValue != null) {
+            set(newValue);
+        } else {
+            set((Map<? extends K, ? extends V>) null);
+        }
     }
 
     @Override
-    protected Value<? extends Map<K, V>> calculateValueFrom(MapSupplier<K, V> value, ValueConsumer consumer) {
+    protected String describeContents() {
+        return String.format("Map(%s->%s, %s)", keyType.getSimpleName().toLowerCase(), valueType.getSimpleName(), describeValue());
+    }
+
+    @Override
+    protected Value<? extends Map<K, V>> calculateValueFrom(EvaluationContext.ScopeContext context, MapSupplier<K, V> value, ValueConsumer consumer) {
         return value.calculateValue(consumer);
     }
 
     @Override
-    protected MapSupplier<K, V> finalValue(MapSupplier<K, V> value, ValueConsumer consumer) {
+    protected MapSupplier<K, V> finalValue(EvaluationContext.ScopeContext context, MapSupplier<K, V> value, ValueConsumer consumer) {
         Value<? extends Map<K, V>> result = value.calculateValue(consumer);
         if (!result.isMissing()) {
             return new FixedSupplier<>(result.getWithoutSideEffect(), uncheckedCast(result.getSideEffect()));
@@ -255,7 +265,7 @@ public class DefaultMapProperty<K, V> extends AbstractProperty<Map<K, V>, MapSup
     }
 
     @Override
-    protected ExecutionTimeValue<? extends Map<K, V>> calculateOwnExecutionTimeValue(MapSupplier<K, V> value) {
+    protected ExecutionTimeValue<? extends Map<K, V>> calculateOwnExecutionTimeValue(EvaluationContext.ScopeContext context, MapSupplier<K, V> value) {
         return value.calculateOwnExecutionTimeValue();
     }
 
@@ -293,8 +303,10 @@ public class DefaultMapProperty<K, V> extends AbstractProperty<Map<K, V>, MapSup
 
         @Override
         protected Value<? extends Set<K>> calculateOwnValue(ValueConsumer consumer) {
-            beforeRead(consumer);
-            return getSupplier().calculateKeys(consumer);
+            try (EvaluationContext.ScopeContext context = DefaultMapProperty.this.openScope()) {
+                beforeRead(context, consumer);
+                return getSupplier(context).calculateKeys(consumer);
+            }
         }
     }
 
