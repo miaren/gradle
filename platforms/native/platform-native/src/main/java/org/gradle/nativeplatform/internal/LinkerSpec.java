@@ -36,6 +36,12 @@ public interface LinkerSpec extends BinaryToolSpec {
     /**
      * Specify which static libraries should be included as whole archives (ELF only).
      */
+    @Deprecated
+    void wholeArchives(Iterable<File> libraries);
+
+    /**
+     * Specify which static libraries should be included as whole archives (ELF only).
+     */
     void wholeArchives(Predicate<File> predicate);
 
     Predicate<File> getWholeArchivesPredicate();

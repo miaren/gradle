@@ -16,6 +16,8 @@
 
 package org.gradle.nativeplatform.internal;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +51,15 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     @Override
     public void libraries(Iterable<File> libraries) {
         addAll(this.libraries, libraries);
+    }
+
+    @Override
+    @Deprecated
+    public void wholeArchives(Iterable<File> libraries) {
+        ImmutableSet<File> libs = ImmutableSet.of();
+        if (null != libraries)
+            libs = ImmutableSet.copyOf(libraries);
+        wholeArchives(libs::contains);
     }
 
     @Override
