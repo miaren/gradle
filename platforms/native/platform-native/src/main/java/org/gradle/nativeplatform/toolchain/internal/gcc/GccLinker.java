@@ -71,6 +71,9 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
                 args.add("-shared");
                 maybeSetInstallName((SharedLibraryLinkerSpec) spec, args);
             }
+
+            OperatingSystem targetOs = spec.getTargetPlatform().getOperatingSystem();
+
             args.add("-o");
             args.add(spec.getOutputFile().getAbsolutePath());
             for (File file : spec.getObjectFiles()) {
@@ -78,11 +81,19 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
             }
             for (File file : spec.getLibraries()) {
                 boolean wholeArchive = wholeArchives.contains(file);
-                if (wholeArchive)
-                    args.add("-Wl,-whole-archive");
+                if (wholeArchive) {
+                    if (targetOs.isMacOsX()) {
+                        args.add("-Wl,-force_load");
+                    } else {
+                        args.add("-Wl,-whole-archive");
+                    }
+                }
                 args.add(file.getAbsolutePath());
-                if (wholeArchive)
-                    args.add("-Wl,-no-whole-archive");
+                if (wholeArchive) {
+                    if (!targetOs.isMacOsX()) {
+                        args.add("-Wl,-no-whole-archive");
+                    }
+                }
             }
             if (!spec.getLibraryPath().isEmpty()) {
                 throw new UnsupportedOperationException("Library Path not yet supported on GCC");
