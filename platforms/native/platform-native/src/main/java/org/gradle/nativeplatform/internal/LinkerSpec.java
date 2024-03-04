@@ -18,6 +18,7 @@ package org.gradle.nativeplatform.internal;
 
 import java.io.File;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * A high level interface to the linker, specifying what is to be linked and how.
@@ -35,9 +36,9 @@ public interface LinkerSpec extends BinaryToolSpec {
     /**
      * Specify which static libraries should be included as whole archives (ELF only).
      */
-    void wholeArchives(Iterable<File> libraries);
+    void wholeArchives(Predicate<File> predicate);
 
-    List<File> getWholeArchives();
+    Predicate<File> getWholeArchivesPredicate();
 
     List<File> getLibraryPath();
 

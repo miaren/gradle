@@ -20,13 +20,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerSpec {
 
     private final List<File> objectFiles = new ArrayList<File>();
     private final List<File> libraries = new ArrayList<File>();
     private final List<File> libraryPath = new ArrayList<File>();
-    private final List<File> wholeArchives = new ArrayList<File>();
+    private Predicate<File> wholeArchivesPredicate = any -> false;
     private File outputFile;
     private boolean debuggable;
 
@@ -51,13 +52,15 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     }
 
     @Override
-    public void wholeArchives(Iterable<File> libraries) {
-        addAll(this.wholeArchives, libraries);
+    public void wholeArchives(Predicate<File> predicate) {
+        if (null == predicate)
+            predicate = any -> false;
+        wholeArchivesPredicate = predicate;
     }
 
     @Override
-    public List<File> getWholeArchives() {
-        return wholeArchives;
+    public Predicate<File> getWholeArchivesPredicate() {
+        return wholeArchivesPredicate;
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package org.gradle.nativeplatform.toolchain.internal.gcc;
 
-import com.google.common.collect.ImmutableSet;
 import org.gradle.api.Action;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.operations.BuildOperationQueue;
@@ -33,6 +32,7 @@ import org.gradle.nativeplatform.toolchain.internal.CommandLineToolInvocationWor
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 class GccLinker extends AbstractCompiler<LinkerSpec> {
     GccLinker(BuildOperationExecutor buildOperationExecutor, CommandLineToolInvocationWorker commandLineToolInvocationWorker, CommandLineToolContext invocationContext, boolean useCommandFile, WorkerLeaseService workerLeaseService) {
@@ -63,7 +63,7 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
         public List<String> transform(LinkerSpec spec) {
             List<String> args = new ArrayList<String>();
 
-            ImmutableSet<File> wholeArchives = ImmutableSet.copyOf(spec.getWholeArchives());
+            Predicate<File> wholeArchivesPredicate = spec.getWholeArchivesPredicate();
 
             args.addAll(spec.getSystemArgs());
 
@@ -80,7 +80,7 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
                 args.add(file.getAbsolutePath());
             }
             for (File file : spec.getLibraries()) {
-                boolean wholeArchive = wholeArchives.contains(file);
+                boolean wholeArchive = wholeArchivesPredicate.test(file);
                 if (wholeArchive) {
                     if (targetOs.isMacOsX()) {
                         args.add("-Wl,-force_load");
