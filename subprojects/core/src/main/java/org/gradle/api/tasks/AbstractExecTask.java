@@ -145,6 +145,17 @@ public abstract class AbstractExecTask<T extends AbstractExecTask> extends Conve
         return execSpec.getArgumentProviders();
     }
 
+    @Override
+    public T setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        execSpec.setDumpCoreOnAbort(dumpCoreOnAbort);
+        return taskType.cast(this);
+    }
+
+    @Override
+    public boolean isDumpCoreOnAbort() {
+        return execSpec.isDumpCoreOnAbort();
+    }
+
     /**
      * {@inheritDoc}
      */

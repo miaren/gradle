@@ -93,6 +93,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     private final ProcessLauncher processLauncher;
     private int timeoutMillis;
     private boolean daemon;
+    private final boolean dumpCoreOnAbort;
 
     /**
      * Lock to guard all mutable state
@@ -123,7 +124,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     DefaultExecHandle(String displayName, File directory, String command, List<String> arguments,
                       Map<String, String> environment, StreamsHandler outputHandler, StreamsHandler inputHandler,
                       List<ExecHandleListener> listeners, boolean redirectErrorStream, int timeoutMillis, boolean daemon,
-                      Executor executor, BuildCancellationToken buildCancellationToken) {
+                      boolean dumpCoreOnAbort, Executor executor, BuildCancellationToken buildCancellationToken) {
         this.displayName = displayName;
         this.directory = directory;
         this.command = command;
@@ -134,6 +135,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
         this.redirectErrorStream = redirectErrorStream;
         this.timeoutMillis = timeoutMillis;
         this.daemon = daemon;
+        this.dumpCoreOnAbort = dumpCoreOnAbort;
         this.executor = executor;
         this.lock = new ReentrantLock();
         this.stateChanged = lock.newCondition();
@@ -394,6 +396,11 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     @Override
     public void removeListener(ExecHandleListener listener) {
         broadcast.remove(listener);
+    }
+
+    @Override
+    public boolean isDumpCoreOnAbort() {
+        return dumpCoreOnAbort;
     }
 
     public String getDisplayName() {

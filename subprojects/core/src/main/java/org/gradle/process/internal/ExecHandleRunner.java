@@ -22,6 +22,8 @@ import org.gradle.api.logging.Logging;
 import org.gradle.internal.operations.BuildOperationRef;
 import org.gradle.internal.operations.CurrentBuildOperationRef;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -65,7 +67,35 @@ public class ExecHandleRunner implements Runnable {
             if (process != null) {
                 streamsHandler.disconnect();
                 LOGGER.debug("Abort requested. Destroying process: {}.", execHandle.getDisplayName());
-                process.destroy();
+                if (!execHandle.isDumpCoreOnAbort()) {
+                    process.destroy();
+                    return;
+                }
+
+                // Attempt to get the PID (if it's supported by the running JVM).
+                final long pid;
+                try {
+                    Method toHandleMethod = Process.class.getDeclaredMethod("toHandle");
+                    Object processHandle = toHandleMethod.invoke(process);
+                    Class<?> handleClass = Class.forName("java.lang.ProcessHandle");
+                    Method pidMethod = handleClass.getDeclaredMethod("pid");
+                    pid = (long) pidMethod.invoke(processHandle);
+                } catch (Exception ex) {
+                    LOGGER.warn("Couldn't get pid of process: {}, falling back to destroy()", ex.getMessage());
+                    process.destroy();
+                    return;
+                }
+
+                try {
+                    // Send an abort signal to force a core dump.
+                    Runtime.getRuntime().exec("kill -6 " + pid);
+                    LOGGER.warn("Sent ABRT signal to pid: {}", pid);
+                } catch (IOException e) {
+                    // Fallback to destroy.
+                    LOGGER.warn("Failed to send ABORT signal to pid: {}, falling back to destroy()", pid, e);
+                    process.destroy();
+                    return;
+                }
             }
         } finally {
             lock.unlock();

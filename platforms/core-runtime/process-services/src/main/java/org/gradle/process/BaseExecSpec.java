@@ -39,6 +39,15 @@ public interface BaseExecSpec extends ProcessForkOptions {
     boolean isIgnoreExitValue();
 
     /**
+     * Dump core on program abort.
+     *
+     * @since 8.6 (Miaren)
+     */
+    BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort);
+
+    boolean isDumpCoreOnAbort();
+
+    /**
      * Sets the standard input stream for the process executing the command. The stream is closed after the process
      * completes.
      *

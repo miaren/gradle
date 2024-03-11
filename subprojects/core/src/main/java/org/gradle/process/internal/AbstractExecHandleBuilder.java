@@ -38,6 +38,7 @@ public abstract class AbstractExecHandleBuilder extends DefaultProcessForkOption
     private StreamsHandler inputHandler = DEFAULT_STDIN;
     private String displayName;
     private boolean ignoreExitValue;
+    protected boolean dumpCoreOnAbort;
     private boolean redirectErrorStream;
     private StreamsHandler streamsHandler;
     private int timeoutMillis = Integer.MAX_VALUE;
@@ -116,6 +117,17 @@ public abstract class AbstractExecHandleBuilder extends DefaultProcessForkOption
         return this;
     }
 
+    @Override
+    public boolean isDumpCoreOnAbort() {
+        return dumpCoreOnAbort;
+    }
+
+    @Override
+    public AbstractExecHandleBuilder setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        this.dumpCoreOnAbort = dumpCoreOnAbort;
+        return this;
+    }
+
     public String getDisplayName() {
         return displayName == null ? String.format("command '%s'", getExecutable()) : displayName;
     }
@@ -138,7 +150,7 @@ public abstract class AbstractExecHandleBuilder extends DefaultProcessForkOption
 
         StreamsHandler effectiveOutputHandler = getEffectiveStreamsHandler();
         return new DefaultExecHandle(getDisplayName(), getWorkingDir(), executable, getEffectiveArguments(), getActualEnvironment(),
-            effectiveOutputHandler, inputHandler, listeners, redirectErrorStream, timeoutMillis, daemon, executor, buildCancellationToken);
+            effectiveOutputHandler, inputHandler, listeners, redirectErrorStream, timeoutMillis, daemon, dumpCoreOnAbort, executor, buildCancellationToken);
     }
 
     private StreamsHandler getEffectiveStreamsHandler() {

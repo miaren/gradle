@@ -40,6 +40,7 @@ import static org.gradle.process.internal.DefaultExecSpec.copyBaseExecSpecTo;
 public class DefaultJavaExecSpec extends DefaultJavaForkOptions implements JavaExecSpec, ProcessArgumentsSpec.HasExecutable {
 
     private boolean ignoreExitValue;
+    private boolean dumpCoreOnAbort;
     private final ProcessStreamsSpec streamsSpec = new ProcessStreamsSpec();
     private final ProcessArgumentsSpec argumentsSpec = new ProcessArgumentsSpec(this);
 
@@ -146,6 +147,17 @@ public class DefaultJavaExecSpec extends DefaultJavaForkOptions implements JavaE
     @Override
     public JavaExecSpec setIgnoreExitValue(boolean ignoreExitValue) {
         this.ignoreExitValue = ignoreExitValue;
+        return this;
+    }
+
+    @Override
+    public boolean isDumpCoreOnAbort() {
+        return dumpCoreOnAbort;
+    }
+
+    @Override
+    public JavaExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        this.dumpCoreOnAbort = dumpCoreOnAbort;
         return this;
     }
 

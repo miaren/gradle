@@ -41,6 +41,17 @@ interface DelegatingBaseExecSpec extends BaseExecSpec {
     }
 
     @Override
+    default BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        getDelegate().setDumpCoreOnAbort(dumpCoreOnAbort);
+        return this;
+    }
+
+    @Override
+    default boolean isDumpCoreOnAbort() {
+        return getDelegate().isDumpCoreOnAbort();
+    }
+
+    @Override
     default BaseExecSpec setStandardInput(InputStream inputStream) {
         getDelegate().setStandardInput(inputStream);
         return this;

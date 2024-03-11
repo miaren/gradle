@@ -30,6 +30,7 @@ import java.util.List;
 public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSpec, ProcessArgumentsSpec.HasExecutable {
 
     private boolean ignoreExitValue;
+    private boolean dumpCoreOnAbort;
     private final ProcessStreamsSpec streamsSpec = new ProcessStreamsSpec();
     private final ProcessArgumentsSpec argumentsSpec = new ProcessArgumentsSpec(this);
 
@@ -50,6 +51,7 @@ public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSp
 
     static void copyBaseExecSpecTo(BaseExecSpec source, BaseExecSpec target) {
         target.setIgnoreExitValue(source.isIgnoreExitValue());
+        target.setDumpCoreOnAbort(source.isDumpCoreOnAbort());
         if (source.getStandardInput() != null) {
             target.setStandardInput(source.getStandardInput());
         }
@@ -125,6 +127,17 @@ public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSp
     @Override
     public List<CommandLineArgumentProvider> getArgumentProviders() {
         return argumentsSpec.getArgumentProviders();
+    }
+
+    @Override
+    public ExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        this.dumpCoreOnAbort = dumpCoreOnAbort;
+        return this;
+    }
+
+    @Override
+    public boolean isDumpCoreOnAbort() {
+        return dumpCoreOnAbort;
     }
 
     @Override

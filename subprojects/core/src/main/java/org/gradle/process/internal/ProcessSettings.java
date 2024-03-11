@@ -30,6 +30,8 @@ public interface ProcessSettings {
 
     Map<String, String> getEnvironment();
 
+    boolean isDumpCoreOnAbort();
+
     boolean getRedirectErrorStream();
 
 }
