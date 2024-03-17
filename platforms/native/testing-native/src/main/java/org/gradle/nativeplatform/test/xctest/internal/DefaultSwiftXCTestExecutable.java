@@ -72,6 +72,11 @@ public class DefaultSwiftXCTestExecutable extends DefaultSwiftXCTestBinary imple
     }
 
     @Override
+    public FileCollection getFrameworks() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Property<InstallExecutable> getInstallTask() {
         return installTask;
     }

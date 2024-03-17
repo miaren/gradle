@@ -88,6 +88,11 @@ public class DefaultSwiftExecutable extends DefaultSwiftBinary implements SwiftE
     }
 
     @Override
+    public FileCollection getFrameworks() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public DirectoryProperty getInstallDirectory() {
         return installDirectory;
     }
