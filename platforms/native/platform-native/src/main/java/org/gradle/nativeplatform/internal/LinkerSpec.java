@@ -33,6 +33,11 @@ public interface LinkerSpec extends BinaryToolSpec {
 
     void libraries(Iterable<File> libraries);
 
+
+    List<String> getFrameworks();
+
+    void frameworks(Iterable<String> frameworks);
+
     /**
      * Specify which static libraries should be included as whole archives (ELF only).
      */
@@ -51,6 +56,13 @@ public interface LinkerSpec extends BinaryToolSpec {
     void libraryPath(File... libraryPath);
 
     void libraryPath(List<File> libraryPath);
+
+
+    List<File> getFrameworkPath();
+
+    void frameworkPath(File... frameworkPath);
+
+    void frameworkPath(Iterable<File> frameworkPath);
 
     File getOutputFile();
 

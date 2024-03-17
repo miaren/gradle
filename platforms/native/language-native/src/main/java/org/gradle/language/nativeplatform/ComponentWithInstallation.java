@@ -33,6 +33,12 @@ public interface ComponentWithInstallation extends ComponentWithNativeRuntime {
     FileCollection getRuntimeLibraries();
 
     /**
+     * Returns the runtime frameworks required by this binary. Includes the runtime libraries of the component's dependencies,
+     * as well as bundles, strings, headers, resources, etc.
+     */
+    FileCollection getFrameworks();
+
+    /**
      * Returns the installation directory.
      */
     Provider<Directory> getInstallDirectory();

@@ -29,6 +29,8 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     private final List<File> objectFiles = new ArrayList<File>();
     private final List<File> libraries = new ArrayList<File>();
     private final List<File> libraryPath = new ArrayList<File>();
+    private final List<String> frameworks = new ArrayList<String>();
+    private final List<File> frameworkPath = new ArrayList<File>();
     private Predicate<File> wholeArchivesPredicate = any -> false;
     private File outputFile;
     private boolean debuggable;
@@ -51,6 +53,16 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     @Override
     public void libraries(Iterable<File> libraries) {
         addAll(this.libraries, libraries);
+    }
+
+    @Override
+    public List<String> getFrameworks() {
+        return frameworks;
+    }
+
+    @Override
+    public void frameworks(Iterable<String> frameworks) {
+        addAllStrings(this.frameworks, frameworks);
     }
 
     @Override
@@ -90,6 +102,21 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     }
 
     @Override
+    public List<File> getFrameworkPath() {
+        return frameworkPath;
+    }
+
+    @Override
+    public void frameworkPath(File... frameworkPath) {
+        Collections.addAll(this.frameworkPath, frameworkPath);
+    }
+
+    @Override
+    public void frameworkPath(Iterable<File> frameworkPath) {
+        addAll(this.frameworkPath, frameworkPath);
+    }
+
+    @Override
     public File getOutputFile() {
         return outputFile;
     }
@@ -102,6 +129,12 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     private void addAll(List<File> list, Iterable<File> iterable) {
         for (File file : iterable) {
             list.add(file);
+        }
+    }
+
+    private void addAllStrings(List<String> list, Iterable<String> iterable) {
+        for (String string : iterable) {
+            list.add(string);
         }
     }
 

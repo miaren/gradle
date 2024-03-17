@@ -48,6 +48,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
     private final FileCollection includePath;
     private final Configuration linkLibraries;
     private final FileCollection runtimeLibraries;
+    private final FileCollection frameworks;
     private final CppPlatform targetPlatform;
     private final NativeToolChainInternal toolChain;
     private final PlatformToolProvider platformToolProvider;
@@ -95,6 +96,15 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         nativeRuntime.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
         nativeRuntime.extendsFrom(getImplementationDependencies());
 
+        @SuppressWarnings("deprecation")
+        Configuration nativeFramework = configurations.migratingUnlocked(names.withPrefix("nativeFrameworks"), ConfigurationRolesForMigration.RESOLVABLE_DEPENDENCY_SCOPE_TO_RESOLVABLE);
+        nativeFramework.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.NATIVE_FRAMEWORK));
+        nativeFramework.getAttributes().attribute(DEBUGGABLE_ATTRIBUTE, identity.isDebuggable());
+        nativeFramework.getAttributes().attribute(OPTIMIZED_ATTRIBUTE, identity.isOptimized());
+        nativeFramework.getAttributes().attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, identity.getTargetMachine().getOperatingSystemFamily());
+        nativeFramework.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
+        nativeFramework.extendsFrom(getImplementationDependencies());
+
         ArtifactView includeDirs = includePathConfiguration.getIncoming().artifactView(viewConfiguration -> {
            viewConfiguration.attributes(attributeContainer -> {
                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
@@ -103,6 +113,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         includePath = componentHeaderDirs.plus(includeDirs.getFiles());
         linkLibraries = nativeLink;
         runtimeLibraries = nativeRuntime;
+        frameworks = nativeFramework;
     }
 
     @Inject
@@ -157,6 +168,11 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
     @Override
     public FileCollection getRuntimeLibraries() {
         return runtimeLibraries;
+    }
+
+    @Override
+    public FileCollection getFrameworks() {
+        return frameworks;
     }
 
     public Configuration getIncludePathConfiguration() {

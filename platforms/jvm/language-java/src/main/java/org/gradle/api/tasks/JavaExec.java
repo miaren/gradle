@@ -33,6 +33,7 @@ import org.gradle.internal.jvm.DefaultModularitySpec;
 import org.gradle.jvm.toolchain.JavaLauncher;
 import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.jvm.toolchain.internal.JavaExecutableUtils;
+import org.gradle.process.BaseExecSpec;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaDebugOptions;
@@ -731,6 +732,17 @@ public abstract class JavaExec extends ConventionTask implements JavaExecSpec {
     @Input
     public boolean isIgnoreExitValue() {
         return javaExecSpec.isIgnoreExitValue();
+    }
+
+    @Override
+    public BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        javaExecSpec.setDumpCoreOnAbort(dumpCoreOnAbort);
+        return this;
+    }
+
+    @Override
+    public boolean isDumpCoreOnAbort() {
+        return javaExecSpec.isDumpCoreOnAbort();
     }
 
     /**

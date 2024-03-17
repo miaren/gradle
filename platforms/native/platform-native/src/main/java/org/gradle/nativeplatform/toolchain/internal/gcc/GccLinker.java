@@ -95,6 +95,16 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
                     }
                 }
             }
+            if (targetOs.isMacOsX()) {
+                for (File file : spec.getFrameworkPath()) {
+                    args.add("-F");
+                    args.add(file.getAbsolutePath());
+                }
+                for (String file : spec.getFrameworks()) {
+                    args.add("-framework");
+                    args.add(file);
+                }
+            }
             if (!spec.getLibraryPath().isEmpty()) {
                 throw new UnsupportedOperationException("Library Path not yet supported on GCC");
             }

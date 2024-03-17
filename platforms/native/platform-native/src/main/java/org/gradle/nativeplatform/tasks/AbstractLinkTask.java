@@ -17,6 +17,7 @@ package org.gradle.nativeplatform.tasks;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -53,6 +54,7 @@ import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 import org.gradle.work.DisableCachingByDefault;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Base task for linking a native binary from object files and libraries.
@@ -64,6 +66,8 @@ public abstract class AbstractLinkTask extends DefaultTask implements ObjectFile
     private final ListProperty<String> linkerArgs;
     private final ConfigurableFileCollection source;
     private final ConfigurableFileCollection libs;
+    private final ListProperty<String> frameworks;
+    private final ListProperty<Directory> frameworkDirs;
     private final Property<Boolean> debuggable;
     private final Property<NativePlatform> targetPlatform;
     private final Property<NativeToolChain> toolChain;
@@ -71,6 +75,8 @@ public abstract class AbstractLinkTask extends DefaultTask implements ObjectFile
     public AbstractLinkTask() {
         final ObjectFactory objectFactory = getProject().getObjects();
         this.libs = getProject().files();
+        this.frameworks = objectFactory.listProperty(String.class);
+        this.frameworkDirs = objectFactory.listProperty(Directory.class);
         this.source = getProject().files();
         this.linkedFile = objectFactory.fileProperty();
         this.destinationDirectory = objectFactory.directoryProperty();
@@ -177,6 +183,32 @@ public abstract class AbstractLinkTask extends DefaultTask implements ObjectFile
      */
     @PathSensitive(PathSensitivity.RELATIVE)
     @InputFiles
+    public ListProperty<String> getFrameworks() {
+        return frameworks;
+    }
+
+    public void setFrameworks(List<String> frameworks) {
+        this.frameworks.set(frameworks);
+    }
+
+    /**
+     * The library files to be passed to the linker.
+     */
+    @PathSensitive(PathSensitivity.RELATIVE)
+    @InputFiles
+    public ListProperty<Directory> getFrameworkDirs() {
+        return frameworkDirs;
+    }
+
+    public void setFrameworkDirs(List<Directory> dirs) {
+        this.frameworkDirs.set(dirs);
+    }
+
+    /**
+     * The library files to be passed to the linker.
+     */
+    @PathSensitive(PathSensitivity.RELATIVE)
+    @InputFiles
     public ConfigurableFileCollection getLibs() {
         return libs;
     }
@@ -198,6 +230,34 @@ public abstract class AbstractLinkTask extends DefaultTask implements ObjectFile
      */
     public void lib(Object libs) {
         this.libs.from(libs);
+    }
+
+    /**
+     * Adds a set of library files to be linked. The provided libs object is evaluated as per {@link org.gradle.api.Project#files(Object...)}.
+     */
+    public void frameworks(Iterable<String> libs) {
+        this.frameworks.addAll(libs);
+    }
+
+    /**
+     * Adds a set of library files to be linked. The provided libs object is evaluated as per {@link org.gradle.api.Project#files(Object...)}.
+     */
+    public void frameworks(String... frameworks) {
+        this.frameworks.addAll(frameworks);
+    }
+
+    /**
+     * Adds a set of library files to be linked. The provided libs object is evaluated as per {@link org.gradle.api.Project#files(Object...)}.
+     */
+    public void frameworkDirs(Iterable<Directory> dirs) {
+        this.frameworkDirs.addAll(dirs);
+    }
+
+    /**
+     * Adds a set of library files to be linked. The provided libs object is evaluated as per {@link org.gradle.api.Project#files(Object...)}.
+     */
+    public void frameworkDirs(Directory... dirs) {
+        this.frameworkDirs.addAll(dirs);
     }
 
     /**
@@ -240,6 +300,10 @@ public abstract class AbstractLinkTask extends DefaultTask implements ObjectFile
 
         spec.objectFiles(getSource());
         spec.libraries(getLibs());
+        spec.frameworks(getFrameworks().get());
+        for (Directory dir : getFrameworkDirs().get()) {
+            spec.frameworkPath(dir.getAsFile());
+        }
         spec.args(getLinkerArgs().get());
         spec.setDebuggable(getDebuggable().get());
 

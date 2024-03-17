@@ -71,6 +71,12 @@ public interface CppBinary extends ComponentWithObjectFiles, ComponentWithDepend
     FileCollection getRuntimeLibraries();
 
     /**
+     * Returns the runtime frameworks required by this binary. Includes the runtime libraries of the component's dependencies,
+     * as well as bundles, strings, headers, resources, etc.
+     */
+    FileCollection getFrameworks();
+
+    /**
      * Returns the target platform for this component.
      *
      * @since 4.5

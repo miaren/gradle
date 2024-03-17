@@ -40,6 +40,7 @@ import org.gradle.api.file.RegularFile;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationRolesForMigration;
 import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.api.internal.artifacts.transform.UnzipTransform;
+import org.gradle.api.internal.file.FileFactory;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -80,6 +81,7 @@ import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -125,6 +127,9 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
     public NativeBasePlugin(TargetMachineFactory targetMachineFactory) {
         this.targetMachineFactory = targetMachineFactory;
     }
+
+    @Inject
+    abstract FileFactory getFileFactory();
 
     @Override
     public void apply(final Project project) {
@@ -212,6 +217,13 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
             TaskProvider<LinkExecutable> link = tasks.register(names.getTaskName("link"), LinkExecutable.class, task -> {
                 task.source(executable.getObjects());
                 task.lib(executable.getLinkLibraries());
+                for (File framework : executable.getFrameworks()) {
+                    String frameworkName = framework.getName();
+                    if (frameworkName.endsWith(".framework"))
+                        frameworkName = frameworkName.substring(0, frameworkName.length() - ".framework".length());
+                    task.frameworks(frameworkName);
+                    task.frameworkDirs(getFileFactory().dir(framework.getParentFile()));
+                }
                 task.getLinkedFile().set(buildDirectory.file(executable.getBaseName().map(baseName -> toolProvider.getExecutableName("exe/" + names.getDirName() + baseName))));
                 task.getTargetPlatform().set(targetPlatform);
                 task.getToolChain().set(toolChain);
@@ -246,6 +258,7 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
                 task.getInstallDirectory().set(buildDirectory.dir("install/" + names.getDirName()));
                 task.getExecutableFile().set(executable.getExecutableFile());
                 task.lib(executable.getRuntimeLibraries());
+                task.lib(executable.getFrameworks());
             });
 
             executable.getInstallTask().set(install);
