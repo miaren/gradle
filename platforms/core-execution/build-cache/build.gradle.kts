@@ -42,6 +42,7 @@ dependencies {
     jmhImplementation(libs.aircompressor)
     jmhImplementation(libs.snappy)
     jmhImplementation(libs.jtar)
+    jmhImplementation(libs.xz)
     jmhImplementation(libs.commonsIo)
 
     testImplementation(project(":model-core"))

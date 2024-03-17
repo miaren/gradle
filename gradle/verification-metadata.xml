@@ -319,6 +319,7 @@
             <trusting group="^org[.]junit($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="FF986D345395D4AD1DC48137BB6FD5AD91D01857" group="org.seleniumhq.selenium"/>
+         <trusted-key id="3690C240CE51B4670D30AD1C38EE757D69184620" group="org.tukaani"/>
       </trusted-keys>
    </configuration>
    <components>
@@ -1510,6 +1511,11 @@
       <component group="org.tukaani" name="xz" version="1.6">
          <artifact name="xz-1.6.jar">
             <pgp value="3690C240CE51B4670D30AD1C38EE757D69184620"/>
+         </artifact>
+      </component>
+      <component group="org.tukaani" name="xz" version="1.9">
+         <artifact name="xz-1.9.jar">
+            <sha256 value="211b306cfc44f8f96df3a0a3ddaf75ba8c5289eed77d60d72f889bb855f535e5" origin="Verified"/>
          </artifact>
       </component>
       <component group="org.w3c.css" name="sac" version="1.3">

@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.commonsIo)
     implementation(libs.commonsLang)
     implementation(libs.commonsCompress)
+    implementation(libs.xz)
     implementation(libs.nativePlatform)
     implementation(libs.xmlApis)
     implementation(libs.tomlj)

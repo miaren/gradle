@@ -190,6 +190,11 @@ public class WorkerDaemonServer implements RequestHandler<TransportableActionExe
                 }
 
                 @Override
+                public ReadableResource xz(Object path) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
                 public ReadableResource bzip2(Object path) {
                     throw new UnsupportedOperationException();
                 }

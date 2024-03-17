@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.jacksonDatabind)
     implementation(libs.ivy)
     implementation(libs.commonsCompress)
+    implementation(libs.xz)
     implementation(libs.jgit) {
         because("Some tests require a git reportitory - see AbstractIntegrationSpec.initGitDir(")
     }

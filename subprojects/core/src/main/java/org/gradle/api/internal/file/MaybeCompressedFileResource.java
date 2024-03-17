@@ -20,6 +20,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.internal.file.archive.compression.Bzip2Archiver;
 import org.gradle.api.internal.file.archive.compression.CompressedReadableResource;
 import org.gradle.api.internal.file.archive.compression.GzipArchiver;
+import org.gradle.api.internal.file.archive.compression.XzArchiver;
 import org.gradle.api.resources.MissingResourceException;
 import org.gradle.api.resources.ReadableResource;
 import org.gradle.api.resources.internal.ReadableResourceInternal;
@@ -44,6 +45,8 @@ public class MaybeCompressedFileResource implements ReadableResourceInternal {
                 this.resource = new Bzip2Archiver(resource);
             } else if (Compression.GZIP.getSupportedExtensions().contains(ext)) {
                 this.resource = new GzipArchiver(resource);
+            } else if (Compression.XZ.getSupportedExtensions().contains(ext)) {
+                this.resource = new XzArchiver(resource);
             } else {
                 // Unrecognized extension
                 this.resource = resource;

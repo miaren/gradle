@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":base-annotations"))
     implementation(libs.guava)
     implementation(libs.commonsCompress)
+    implementation(libs.xz)
     implementation(libs.commonsIo)
 
     testImplementation(project(":process-services"))

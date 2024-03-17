@@ -18,6 +18,7 @@ package org.gradle.api.internal.resources;
 
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.file.archive.compression.XzArchiver;
 import org.gradle.api.internal.file.temp.TemporaryFileProvider;
 import org.gradle.api.internal.file.archive.compression.Bzip2Archiver;
 import org.gradle.api.internal.file.archive.compression.GzipArchiver;
@@ -39,6 +40,11 @@ public class DefaultResourceHandler implements ResourceHandler {
     @Override
     public ReadableResourceInternal gzip(Object path) {
         return new GzipArchiver(resourceResolver.resolveResource(path));
+    }
+
+    @Override
+    public ReadableResourceInternal xz(Object path) {
+        return new XzArchiver(resourceResolver.resolveResource(path));
     }
 
     @Override

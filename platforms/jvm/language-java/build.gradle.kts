@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.fastutil)
     implementation(libs.ant)
     implementation(libs.commonsCompress)
+    implementation(libs.xz)
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.inject)

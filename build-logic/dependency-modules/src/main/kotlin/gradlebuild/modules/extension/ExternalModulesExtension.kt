@@ -188,6 +188,9 @@ abstract class ExternalModulesExtension(isBundleGroovy4: Boolean) {
     val xerces = "xerces:xercesImpl"
     val xmlunit = "xmlunit:xmlunit"
 
+    // Compression
+    val xz = "org.tukaani:xz"
+
     val licenses = mapOf(
         ansiControlSequenceUtil to License.Apache2,
         ant to License.Apache2,
