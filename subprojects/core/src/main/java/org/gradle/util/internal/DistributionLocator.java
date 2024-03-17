@@ -15,6 +15,7 @@
  */
 package org.gradle.util.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.gradle.internal.UncheckedException;
 import org.gradle.util.GradleVersion;
 
@@ -24,6 +25,8 @@ import java.net.URISyntaxException;
 public class DistributionLocator {
 
     private static final String SERVICES_GRADLE_BASE_URL_PROPERTY = "org.gradle.internal.services.base.url";
+    private static final String SERVICES_GRADLE_ARCHIVE_NAME = "org.gradle.internal.services.archive.name";
+    private static final String SERVICES_GRADLE_ARCHIVE_EXT = "org.gradle.internal.services.archive.extension";
     private static final String SERVICES_GRADLE_BASE_URL = "https://services.gradle.org";
     private static final String RELEASE_REPOSITORY = "/distributions";
     private static final String SNAPSHOT_REPOSITORY = "/distributions-snapshots";
@@ -37,14 +40,19 @@ public class DistributionLocator {
     }
 
     public URI getDistributionFor(GradleVersion version, String type) {
-        return getDistribution(getDistributionRepository(version), version, "gradle", type);
+        String archiveName = System.getProperty(SERVICES_GRADLE_ARCHIVE_NAME, "gradle");
+        return getDistribution(getDistributionRepository(version), version, archiveName, type);
     }
 
     private String getDistributionRepository(GradleVersion version) {
+        String url = System.getProperty(SERVICES_GRADLE_BASE_URL_PROPERTY);
+        if (StringUtils.isNotBlank(url))
+            return url;
+        url = SERVICES_GRADLE_BASE_URL;
         if (version.isSnapshot()) {
-            return getBaseUrl() + SNAPSHOT_REPOSITORY;
+            return url + SNAPSHOT_REPOSITORY;
         } else {
-            return getBaseUrl() + RELEASE_REPOSITORY;
+            return url + RELEASE_REPOSITORY;
         }
     }
 
@@ -52,8 +60,9 @@ public class DistributionLocator {
         String repositoryUrl, GradleVersion version, String archiveName,
         String archiveClassifier
     ) {
+        String archiveExt = System.getProperty(SERVICES_GRADLE_ARCHIVE_EXT, ".zip");
         try {
-            return new URI(repositoryUrl + "/" + archiveName + "-" + version.getVersion() + "-" + archiveClassifier + ".zip");
+            return new URI(repositoryUrl + "/" + archiveName + "-" + version.getVersion() + "-" + archiveClassifier + archiveExt);
         } catch (URISyntaxException e) {
             throw UncheckedException.throwAsUncheckedException(e);
         }
