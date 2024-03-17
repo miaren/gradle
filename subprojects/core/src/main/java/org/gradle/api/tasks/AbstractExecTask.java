@@ -151,6 +151,7 @@ public abstract class AbstractExecTask<T extends AbstractExecTask> extends Conve
         return taskType.cast(this);
     }
 
+    @Input
     @Override
     public boolean isDumpCoreOnAbort() {
         return execSpec.isDumpCoreOnAbort();
