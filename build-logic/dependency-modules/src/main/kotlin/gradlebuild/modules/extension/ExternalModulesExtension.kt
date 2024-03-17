@@ -190,6 +190,7 @@ abstract class ExternalModulesExtension(isBundleGroovy4: Boolean) {
 
     // Compression
     val xz = "org.tukaani:xz"
+    val zstdJni = "com.github.luben:zstd-jni"
 
     val licenses = mapOf(
         ansiControlSequenceUtil to License.Apache2,

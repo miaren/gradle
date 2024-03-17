@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.commonsCompress)
     implementation(libs.xz)
+    implementation(libs.zstdJni)
     implementation(libs.commonsIo)
 
     testImplementation(project(":process-services"))

@@ -203,5 +203,6 @@ dependencies {
         api(libs.xerces)                { version { strictly("2.12.0") }}
         api(libs.xmlunit)               { version { strictly("1.6") }}
         api(libs.xz)                    { version { strictly("1.9") }}
+        api(libs.zstdJni)                    { version { strictly("1.5.5-11") }}
     }
 }

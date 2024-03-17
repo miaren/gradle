@@ -200,6 +200,11 @@ public class WorkerDaemonServer implements RequestHandler<TransportableActionExe
                 }
 
                 @Override
+                public ReadableResource zstd(Object path) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
                 public TextResourceFactory getText() {
                     throw new UnsupportedOperationException();
                 }

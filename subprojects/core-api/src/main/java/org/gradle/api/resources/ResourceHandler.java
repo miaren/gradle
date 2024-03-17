@@ -46,6 +46,14 @@ public interface ResourceHandler {
     ReadableResource bzip2(Object path);
 
     /**
+     * Creates resource that points to a zstd compressed file at the given path.
+     * The path is evaluated as per {@link org.gradle.api.Project#file(Object)}.
+     *
+     * @param path The path evaluated as per {@link org.gradle.api.Project#file(Object)}.
+     */
+    ReadableResource zstd(Object path);
+
+    /**
      * Returns a factory for creating {@code TextResource}s from various sources such as
      * strings, files, and archive entries.
      *

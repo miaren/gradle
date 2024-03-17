@@ -43,6 +43,7 @@ dependencies {
     jmhImplementation(libs.snappy)
     jmhImplementation(libs.jtar)
     jmhImplementation(libs.xz)
+    jmhImplementation(libs.zstdJni)
     jmhImplementation(libs.commonsIo)
 
     testImplementation(project(":model-core"))

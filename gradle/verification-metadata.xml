@@ -128,6 +128,7 @@
          </trusted-key>
          <trusted-key id="34D6FF19930ADF43AC127792A50569C7CA7FA1F0" group="com.jcraft"/>
          <trusted-key id="36390DE6A0E61EE4C7B4BA02C1D3063467F1EBD1" group="org.asciidoctor"/>
+         <trusted-key id="3690C240CE51B4670D30AD1C38EE757D69184620" group="org.tukaani"/>
          <trusted-key id="3872ED7D5904493D23D78FA2C4C8CB73B1435348" group="^com[.]android[.]tools($|([.].*))" regex="true"/>
          <trusted-key id="3CAC6E7DC43343FF75ECBAC27E6EB7BB6A7712DC" group="net.sourceforge.nekohtml" name="nekohtml"/>
          <trusted-key id="4008F9DFF7DBC968F35F9E712642156411CCE8B3" group="com.vladsch.flexmark"/>
@@ -319,7 +320,6 @@
             <trusting group="^org[.]junit($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="FF986D345395D4AD1DC48137BB6FD5AD91D01857" group="org.seleniumhq.selenium"/>
-         <trusted-key id="3690C240CE51B4670D30AD1C38EE757D69184620" group="org.tukaani"/>
       </trusted-keys>
    </configuration>
    <components>
@@ -531,6 +531,11 @@
       <component group="com.github.javaparser" name="javaparser-core" version="3.25.1">
          <artifact name="javaparser-core-3.25.1.jar">
             <pgp value="FC2C31FC25FEDE4E7AD0D18C2BFD7825A8984FBE"/>
+         </artifact>
+      </component>
+      <component group="com.github.luben" name="zstd-jni" version="1.5.5-11">
+         <artifact name="zstd-jni-1.5.5-11.jar">
+            <pgp value="9AC5712CABE9635B65663AB0711C0A9A896FE336"/>
          </artifact>
       </component>
       <component group="com.github.siom79.japicmp" name="japicmp" version="0.15.7">

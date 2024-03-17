@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.ant)
     implementation(libs.commonsCompress)
     implementation(libs.xz)
+    implementation(libs.zstdJni)
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.inject)
