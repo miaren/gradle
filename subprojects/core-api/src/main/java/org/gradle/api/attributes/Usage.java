@@ -70,6 +70,20 @@ public interface Usage extends Named {
     String NATIVE_FRAMEWORK = "native-framework";
 
     /**
+     * An executable.
+     *
+     * @since 8.6 (Miaren)
+     */
+    String NATIVE_EXECUTABLE = "native-executable";
+
+    /**
+     * The resources of a library, packaged as directories.
+     *
+     * @since 8.6 (Miaren)
+     */
+    String NATIVE_RESOURCES = "native-resources";
+
+    /**
      * The Swift API of a library, packaged as swiftmodule files.
      *
      * @since 4.1
