@@ -51,6 +51,13 @@ public interface CppBinary extends ComponentWithObjectFiles, ComponentWithDepend
     Attribute<Linkage> LINKAGE_ATTRIBUTE = Attribute.of("org.gradle.native.linkage", Linkage.class);
 
     /**
+     * Whether the artifact is an executable.
+     *
+     * @since 8.6 (Miaren)
+     */
+    Attribute<Boolean> EXECUTABLE_ATTRIBUTE = Attribute.of("org.gradle.native.executable", Boolean.class);
+
+    /**
      * Returns the C++ source files of this binary.
      */
     FileCollection getCppSource();
