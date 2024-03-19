@@ -32,7 +32,12 @@ public enum Linkage implements Named {
     /**
      * Dynamically link binaries together.
      */
-    SHARED;
+    SHARED,
+
+    /**
+     * Dynamically link as a Darwin Framework.
+     */
+    FRAMEWORK;
 
     @Override
     public String getName() {

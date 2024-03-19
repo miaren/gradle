@@ -56,32 +56,12 @@ public interface Usage extends Named {
     String NATIVE_LINK = "native-link";
 
     /**
-     * The native runtime files of a library, packaged as a shared library.
+     * The native runtime files of a library, packaged as a shared library,
+     * framework, or bundle.
      *
      * @since 4.1
      */
     String NATIVE_RUNTIME = "native-runtime";
-
-    /**
-     * The native runtime files of a library, packages as a Darwin framework.
-     *
-     * @since 8.6 (Miaren)
-     */
-    String NATIVE_FRAMEWORK = "native-framework";
-
-    /**
-     * An executable.
-     *
-     * @since 8.6 (Miaren)
-     */
-    String NATIVE_EXECUTABLE = "native-executable";
-
-    /**
-     * The resources of a library, packaged as directories.
-     *
-     * @since 8.6 (Miaren)
-     */
-    String NATIVE_RESOURCES = "native-resources";
 
     /**
      * The Swift API of a library, packaged as swiftmodule files.

@@ -33,6 +33,7 @@ import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.language.internal.DefaultNativeBinary;
 import org.gradle.language.nativeplatform.internal.Names;
+import org.gradle.nativeplatform.Linkage;
 import org.gradle.nativeplatform.MachineArchitecture;
 import org.gradle.nativeplatform.OperatingSystemFamily;
 import org.gradle.nativeplatform.TargetMachine;
@@ -96,15 +97,6 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         nativeRuntime.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
         nativeRuntime.extendsFrom(getImplementationDependencies());
 
-        @SuppressWarnings("deprecation")
-        Configuration nativeFramework = configurations.migratingUnlocked(names.withPrefix("nativeFrameworks"), ConfigurationRolesForMigration.RESOLVABLE_DEPENDENCY_SCOPE_TO_RESOLVABLE);
-        nativeFramework.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.NATIVE_FRAMEWORK));
-        nativeFramework.getAttributes().attribute(DEBUGGABLE_ATTRIBUTE, identity.isDebuggable());
-        nativeFramework.getAttributes().attribute(OPTIMIZED_ATTRIBUTE, identity.isOptimized());
-        nativeFramework.getAttributes().attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, identity.getTargetMachine().getOperatingSystemFamily());
-        nativeFramework.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
-        nativeFramework.extendsFrom(getImplementationDependencies());
-
         ArtifactView includeDirs = includePathConfiguration.getIncoming().artifactView(viewConfiguration -> {
            viewConfiguration.attributes(attributeContainer -> {
                attributeContainer.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API));
@@ -113,11 +105,14 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         });
         includePath = componentHeaderDirs.plus(includeDirs.getFiles());
         linkLibraries = nativeLink;
-        runtimeLibraries = nativeRuntime;
-        frameworks = nativeFramework.getIncoming().artifactView(viewConfiguration -> {
-            viewConfiguration.setLenient(true); // Not all dependencies have frameworks...
+        runtimeLibraries = nativeRuntime.getIncoming().artifactView(viewConfiguration -> {
             viewConfiguration.attributes(attributeContainer -> {
-                attributeContainer.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.NATIVE_FRAMEWORK));
+                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.SHARED);
+            });
+        }).getFiles();
+        frameworks = nativeRuntime.getIncoming().artifactView(viewConfiguration -> {
+            viewConfiguration.attributes(attributeContainer -> {
+                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.FRAMEWORK);
                 attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
             });
         }).getFiles();
