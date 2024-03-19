@@ -88,7 +88,12 @@ public class DefaultSwiftExecutable extends DefaultSwiftBinary implements SwiftE
     }
 
     @Override
-    public FileCollection getFrameworks() {
+    public FileCollection getLinkFrameworks() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FileCollection getRuntimeFrameworks() {
         throw new UnsupportedOperationException();
     }
 

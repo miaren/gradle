@@ -72,7 +72,12 @@ public class DefaultSwiftXCTestExecutable extends DefaultSwiftXCTestBinary imple
     }
 
     @Override
-    public FileCollection getFrameworks() {
+    public FileCollection getLinkFrameworks() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FileCollection getRuntimeFrameworks() {
         throw new UnsupportedOperationException();
     }
 

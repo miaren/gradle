@@ -48,8 +48,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
     private final FileCollection sourceFiles;
     private final FileCollection includePath;
     private final Configuration linkLibraries;
-    private final FileCollection runtimeLibraries;
-    private final FileCollection frameworks;
+    private final Configuration runtimeLibraries;
     private final CppPlatform targetPlatform;
     private final NativeToolChainInternal toolChain;
     private final PlatformToolProvider platformToolProvider;
@@ -105,17 +104,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         });
         includePath = componentHeaderDirs.plus(includeDirs.getFiles());
         linkLibraries = nativeLink;
-        runtimeLibraries = nativeRuntime.getIncoming().artifactView(viewConfiguration -> {
-            viewConfiguration.attributes(attributeContainer -> {
-                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.SHARED);
-            });
-        }).getFiles();
-        frameworks = nativeRuntime.getIncoming().artifactView(viewConfiguration -> {
-            viewConfiguration.attributes(attributeContainer -> {
-                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.FRAMEWORK);
-                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
-            });
-        }).getFiles();
+        runtimeLibraries = nativeRuntime;
     }
 
     @Inject
@@ -160,7 +149,12 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
 
     @Override
     public FileCollection getLinkLibraries() {
-        return linkLibraries;
+        return linkLibraries.getIncoming().artifactView(viewConfiguration -> {
+            viewConfiguration.attributes(attributeContainer -> {
+                // Only link against binary files (shared or static). Frameworks are handled separately.
+                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.BINARY_DATA_TYPE);
+            });
+        }).getFiles();
     }
 
     public Configuration getLinkConfiguration() {
@@ -169,12 +163,33 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
 
     @Override
     public FileCollection getRuntimeLibraries() {
-        return runtimeLibraries;
+        return runtimeLibraries.getIncoming().artifactView(viewConfiguration -> {
+            viewConfiguration.attributes(attributeContainer -> {
+                // Only shared libraries allowed at runtime!
+                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.SHARED);
+                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.BINARY_DATA_TYPE);
+            });
+        }).getFiles();
     }
 
     @Override
-    public FileCollection getFrameworks() {
-        return frameworks;
+    public FileCollection getLinkFrameworks() {
+        return linkLibraries.getIncoming().artifactView(viewConfiguration -> {
+            viewConfiguration.attributes(attributeContainer -> {
+                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.FRAMEWORK);
+                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
+            });
+        }).getFiles();
+    }
+
+    @Override
+    public FileCollection getRuntimeFrameworks() {
+        return runtimeLibraries.getIncoming().artifactView(viewConfiguration -> {
+            viewConfiguration.attributes(attributeContainer -> {
+                attributeContainer.attribute(CppBinary.LINKAGE_ATTRIBUTE, Linkage.FRAMEWORK);
+                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
+            });
+        }).getFiles();
     }
 
     public Configuration getIncludePathConfiguration() {

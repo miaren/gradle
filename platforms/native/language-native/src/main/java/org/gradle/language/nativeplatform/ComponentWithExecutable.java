@@ -34,6 +34,12 @@ public interface ComponentWithExecutable extends ComponentWithNativeRuntime {
     FileCollection getLinkLibraries();
 
     /**
+     * Returns the link frameworks to use to link this binary. Includes the link frameworks of the component's dependencies,
+     * as well as bundles, strings, headers, resources, etc.
+     */
+    FileCollection getLinkFrameworks();
+
+    /**
      * Returns the task that should be run to produce the executable file of this component. This isn't necessarily the link task for the component.
      *
      * @since 5.1
