@@ -89,6 +89,11 @@ public class DefaultSwiftSharedLibrary extends DefaultSwiftBinary implements Swi
     }
 
     @Override
+    public FileCollection getLinkFrameworks() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Property<LinkSharedLibrary> getLinkTask() {
         return linkTaskProperty;
     }

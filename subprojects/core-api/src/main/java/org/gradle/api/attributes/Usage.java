@@ -63,13 +63,6 @@ public interface Usage extends Named {
     String NATIVE_RUNTIME = "native-runtime";
 
     /**
-     * The native runtime files of a library, packaged as a Darwin Framework.
-     *
-     * @since 8.6 (Miaren)
-     */
-    String DARWIN_FRAMEWORK = "darwin-framework";
-
-    /**
      * The Swift API of a library, packaged as swiftmodule files.
      *
      * @since 4.1

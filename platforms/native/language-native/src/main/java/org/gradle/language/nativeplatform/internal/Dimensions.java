@@ -19,6 +19,7 @@ package org.gradle.language.nativeplatform.internal;
 import org.apache.commons.lang.StringUtils;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE;
 import static org.gradle.language.cpp.CppBinary.DEBUGGABLE_ATTRIBUTE;
 import static org.gradle.language.cpp.CppBinary.LINKAGE_ATTRIBUTE;
 import static org.gradle.language.cpp.CppBinary.OPTIMIZED_ATTRIBUTE;
@@ -205,6 +207,7 @@ public class Dimensions {
         runtimeAttributes.attribute(OPTIMIZED_ATTRIBUTE, buildType.isOptimized());
         runtimeAttributes.attribute(ARCHITECTURE_ATTRIBUTE, targetMachine.getArchitecture());
         runtimeAttributes.attribute(OPERATING_SYSTEM_ATTRIBUTE, targetMachine.getOperatingSystemFamily());
+        runtimeAttributes.attribute(ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.BINARY_DATA_TYPE);
     }
 
     /**

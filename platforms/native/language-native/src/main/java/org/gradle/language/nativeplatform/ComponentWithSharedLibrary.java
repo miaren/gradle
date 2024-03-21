@@ -32,6 +32,12 @@ public interface ComponentWithSharedLibrary extends ComponentWithLinkFile, Compo
     FileCollection getLinkLibraries();
 
     /**
+     * Returns the link frameworks to use to link this binary. Includes the link frameworks of the component's dependencies,
+     * as well as bundles, strings, headers, resources, etc.
+     */
+    FileCollection getLinkFrameworks();
+
+    /**
      * Returns the link task for the shared library.
      */
     Provider<? extends LinkSharedLibrary> getLinkTask();
