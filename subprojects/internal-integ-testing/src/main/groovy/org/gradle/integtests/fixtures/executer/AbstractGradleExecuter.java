@@ -49,6 +49,7 @@ import org.gradle.internal.nativeintegration.services.NativeServices;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.internal.service.ServiceRegistryBuilder;
 import org.gradle.internal.service.scopes.GlobalScopeServices;
+import org.gradle.internal.service.scopes.Scope;
 import org.gradle.jvm.toolchain.internal.AutoDetectingInstallationSupplier;
 import org.gradle.launcher.cli.DefaultCommandLineActionFactory;
 import org.gradle.launcher.daemon.configuration.DaemonBuildOptions;
@@ -92,7 +93,6 @@ import static org.gradle.integtests.fixtures.executer.AbstractGradleExecuter.Cli
 import static org.gradle.integtests.fixtures.executer.AbstractGradleExecuter.CliDaemonArgument.FOREGROUND;
 import static org.gradle.integtests.fixtures.executer.AbstractGradleExecuter.CliDaemonArgument.NOT_DEFINED;
 import static org.gradle.integtests.fixtures.executer.AbstractGradleExecuter.CliDaemonArgument.NO_DAEMON;
-import static org.gradle.integtests.fixtures.executer.DocumentationUtils.normalizeDocumentationLink;
 import static org.gradle.internal.service.scopes.DefaultGradleUserHomeScopeServiceRegistry.REUSE_USER_HOME_SERVICES;
 import static org.gradle.util.internal.CollectionUtils.collect;
 import static org.gradle.util.internal.CollectionUtils.join;
@@ -105,6 +105,7 @@ public abstract class AbstractGradleExecuter implements GradleExecuter, Resettab
     private static final String ALLOW_INSTRUMENTATION_AGENT_SYSPROP = "org.gradle.integtest.agent.allowed";
 
     protected static final ServiceRegistry GLOBAL_SERVICES = ServiceRegistryBuilder.builder()
+        .scope(Scope.Global.class)
         .displayName("Global services")
         .parent(newCommandLineProcessLogging())
         .parent(NativeServicesTestFixture.getInstance())
@@ -1332,11 +1333,6 @@ public abstract class AbstractGradleExecuter implements GradleExecuter, Resettab
     public GradleExecuter expectDeprecationWarning(ExpectedDeprecationWarning warning) {
         expectedDeprecationWarnings.add(warning);
         return this;
-    }
-
-    @Override
-    public GradleExecuter expectDocumentedDeprecationWarning(ExpectedDeprecationWarning warning) {
-        return expectDeprecationWarning(normalizeDocumentationLink(warning.getMessage()));
     }
 
     @Override

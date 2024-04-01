@@ -20,9 +20,9 @@ import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.file.archive.compression.XzArchiver;
 import org.gradle.api.internal.file.archive.compression.ZstdArchiver;
-import org.gradle.api.internal.file.temp.TemporaryFileProvider;
 import org.gradle.api.internal.file.archive.compression.Bzip2Archiver;
 import org.gradle.api.internal.file.archive.compression.GzipArchiver;
+import org.gradle.api.internal.file.temp.TemporaryFileProvider;
 import org.gradle.api.internal.tasks.TaskDependencyFactory;
 import org.gradle.api.resources.ReadableResource;
 import org.gradle.api.resources.ResourceHandler;
@@ -86,6 +86,7 @@ public class DefaultResourceHandler implements ResourceHandler {
                 this.textResourceAdapterFactory = textResourceAdapterFactory;
             }
 
+            @Override
             public DefaultResourceHandler create(FileOperations fileOperations) {
                 ResourceResolver resourceResolver = new DefaultResourceResolver(fileResolver, fileSystem);
                 DefaultTextResourceFactory textResourceFactory = new DefaultTextResourceFactory(fileOperations, tempFileProvider, textResourceAdapterFactory, taskDependencyFactory);

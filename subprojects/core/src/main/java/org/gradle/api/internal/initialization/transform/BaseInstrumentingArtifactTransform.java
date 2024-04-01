@@ -16,6 +16,7 @@
 
 package org.gradle.api.internal.initialization.transform;
 
+import com.google.common.base.Function;
 import org.gradle.api.artifacts.transform.InputArtifact;
 import org.gradle.api.artifacts.transform.TransformAction;
 import org.gradle.api.artifacts.transform.TransformOutputs;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 import static org.gradle.api.internal.initialization.transform.BaseInstrumentingArtifactTransform.InstrumentArtifactTransformParameters;
+import static org.gradle.internal.classpath.TransformedClassPath.INSTRUMENTED_ENTRY_PREFIX;
 import static org.gradle.internal.classpath.TransformedClassPath.INSTRUMENTED_JAR_DIR_NAME;
 import static org.gradle.internal.classpath.TransformedClassPath.INSTRUMENTED_MARKER_FILE_NAME;
 import static org.gradle.internal.classpath.TransformedClassPath.ORIGINAL_JAR_DIR_NAME;
@@ -78,16 +80,30 @@ public abstract class BaseInstrumentingArtifactTransform implements TransformAct
             return;
         }
 
+        InjectedInstrumentationServices injectedServices = getObjects().newInstance(InjectedInstrumentationServices.class);
+        if (isAgentSupported()) {
+            // When agent is supported, we output an instrumented jar and an original jar,
+            // so we can then later reconstruct instrumented jars classpath and original jars classpath.
+            // We add `instrumented-` prefix to the file since names for the same transform needs to be unique when querying results via ArtifactCollection.
+            doTransformForAgent(input, outputs, injectedServices, originalName -> INSTRUMENTED_ENTRY_PREFIX + originalName);
+        } else {
+            // When agent is not supported, we have only one classpath, so we output just an instrumented jar
+            doTransform(input, outputs, injectedServices, originalName -> originalName);
+        }
+    }
+
+    private void doTransformForAgent(
+        File input,
+        TransformOutputs outputs,
+        InjectedInstrumentationServices injectedServices,
+        Function<String, String> instrumentedEntryNameMapper
+    ) {
         // A marker file that indicates that the result is instrumented jar,
         // this is important so TransformedClassPath can correctly filter instrumented jars.
         createNewFile(outputs.file(INSTRUMENTED_MARKER_FILE_NAME));
 
         // Instrument jars
-        InjectedInstrumentationServices injectedServices = getObjects().newInstance(InjectedInstrumentationServices.class);
-        File outputFile = outputs.file(INSTRUMENTED_JAR_DIR_NAME + "/" + input.getName());
-        ClasspathElementTransformFactory transformFactory = injectedServices.getTransformFactory(getParameters().getAgentSupported().get());
-        ClasspathElementTransform transform = transformFactory.createTransformer(input, new InstrumentingClassTransform(), InstrumentingTypeRegistry.EMPTY);
-        transform.transform(outputFile);
+        doTransform(input, outputs, injectedServices, instrumentedEntryNameMapper);
 
         // Copy original jars after in case they are not in global cache
         if (input.isDirectory()) {
@@ -105,6 +121,30 @@ public abstract class BaseInstrumentingArtifactTransform implements TransformAct
         }
     }
 
+    private void doTransform(
+        File input, TransformOutputs outputs,
+        InjectedInstrumentationServices injectedServices,
+        Function<String, String> instrumentedEntryNameMapper
+    ) {
+        File outputFile = outputs.file(getOutputPath(input, instrumentedEntryNameMapper));
+        ClasspathElementTransformFactory transformFactory = injectedServices.getTransformFactory(isAgentSupported());
+        ClasspathElementTransform transform = transformFactory.createTransformer(input, new InstrumentingClassTransform(), InstrumentingTypeRegistry.EMPTY);
+        transform.transform(outputFile);
+    }
+
+    private static String getOutputPath(File input, Function<String, String> instrumentedEntryNameMapper) {
+        // Currently every artifact is instrumented in to a jar. Even if it's originally a directory.
+        // So let's append .jar if original name doesn't have it: this can happen in case we instrument a directory.
+        String entryName = input.getName().endsWith(".jar")
+            ? input.getName()
+            : input.getName() + ".jar";
+        return INSTRUMENTED_JAR_DIR_NAME + "/" + instrumentedEntryNameMapper.apply(entryName);
+    }
+
+    private boolean isAgentSupported() {
+        return getParameters().getAgentSupported().get();
+    }
+
     private boolean createNewFile(File file) {
         try {
             return file.createNewFile();
@@ -112,7 +152,6 @@ public abstract class BaseInstrumentingArtifactTransform implements TransformAct
             throw new UncheckedIOException(e);
         }
     }
-
 
     static class InjectedInstrumentationServices {
 
