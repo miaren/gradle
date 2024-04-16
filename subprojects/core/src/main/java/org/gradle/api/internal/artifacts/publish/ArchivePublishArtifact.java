@@ -120,6 +120,6 @@ public class ArchivePublishArtifact extends AbstractPublishArtifact implements C
 
     @Override
     public boolean shouldBePublished() {
-        return archiveTask.isEnabled();
+        return archiveTask.isEnabled() && archiveTask.getDidWork();
     }
 }
