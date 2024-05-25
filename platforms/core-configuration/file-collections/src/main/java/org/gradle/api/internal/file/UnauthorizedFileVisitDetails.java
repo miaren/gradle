@@ -19,6 +19,7 @@ package org.gradle.api.internal.file;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FilePermissions;
 import org.gradle.api.file.RelativePath;
+import org.gradle.util.Path;
 
 import java.io.File;
 import java.io.InputStream;
@@ -38,12 +39,22 @@ public class UnauthorizedFileVisitDetails implements FileVisitDetails {
     }
 
     @Override
+    public FileVisitDetails followLink() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public File getFile() {
         return file;
     }
 
     @Override
     public boolean isDirectory() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSymbolicLink() {
         throw new UnsupportedOperationException();
     }
 
@@ -80,6 +91,11 @@ public class UnauthorizedFileVisitDetails implements FileVisitDetails {
     @Override
     public String getPath() {
         return getRelativePath().getPathString();
+    }
+
+    @Override
+    public Path getLinkTarget() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -34,9 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This implementation extracts the files from the archive to the supplied expansion directory.
  */
 public abstract class AbstractArchiveFileTreeElement extends AbstractFileTreeElement implements FileVisitDetails {
-    private final File expandedDir;
+    protected final File expandedDir;
     private File file;
-    private final AtomicBoolean stopFlag;
+    protected final AtomicBoolean stopFlag;
 
     /**
      * Creates a new instance.

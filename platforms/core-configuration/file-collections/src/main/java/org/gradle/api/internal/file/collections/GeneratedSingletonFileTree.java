@@ -133,6 +133,11 @@ public class GeneratedSingletonFileTree implements FileSystemMirroringFileTree, 
         }
 
         @Override
+        public FileVisitDetails followLink() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public File getFile() {
             if (file == null) {
                 file = createFileInstance(fileName);
@@ -192,6 +197,11 @@ public class GeneratedSingletonFileTree implements FileSystemMirroringFileTree, 
 
         @Override
         public boolean isDirectory() {
+            return false;
+        }
+
+        @Override
+        public boolean isSymbolicLink() {
             return false;
         }
 

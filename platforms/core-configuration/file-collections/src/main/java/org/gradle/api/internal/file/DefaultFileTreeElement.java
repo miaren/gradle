@@ -15,15 +15,20 @@
  */
 package org.gradle.api.internal.file;
 
+import org.gradle.api.GradleException;
+import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.FilePermissions;
 import org.gradle.api.file.RelativePath;
 import org.gradle.internal.file.Chmod;
 import org.gradle.internal.file.Stat;
 import org.gradle.internal.nativeintegration.filesystem.FileSystem;
+import org.gradle.util.Path;
 import org.gradle.util.internal.GFileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 public class DefaultFileTreeElement extends AbstractFileTreeElement {
     private final File file;
@@ -64,12 +69,29 @@ public class DefaultFileTreeElement extends AbstractFileTreeElement {
 
     @Override
     public boolean isDirectory() {
-        return !relativePath.isFile();
+        return file.isDirectory();
+    }
+
+    @Override
+    public boolean isSymbolicLink() {
+        return Files.isSymbolicLink(file.toPath());
     }
 
     @Override
     public InputStream open() {
+        if (isSymbolicLink())
+            throw new GradleException("Cannot open() a symbolic link.");
         return GFileUtils.openInputStream(file);
+    }
+
+    @Override
+    public Path getLinkTarget() {
+        try {
+            java.nio.file.Path path = Files.readSymbolicLink(file.toPath());
+            return Path.path(path.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

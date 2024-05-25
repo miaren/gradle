@@ -20,6 +20,7 @@ import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.ReproducibleFileVisitor;
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction;
+import org.gradle.api.internal.file.collections.LinkedDirectoryNeedsWalking;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.nativeintegration.filesystem.FileSystem;
 import org.gradle.internal.reflect.Instantiator;
@@ -64,6 +65,12 @@ public class CopyFileVisitorImpl implements ReproducibleFileVisitor {
             if (details.isExcluded()) {
                 return;
             }
+            // Navigate to the target?
+            if (details.isFollowLink() && details.isSymbolicLink()) {
+                FileVisitDetails target = visitDetails.followLink();
+                if (target.isDirectory())
+                    LinkedDirectoryNeedsWalking.raise();
+            }
         }
         action.processFile(details);
     }
@@ -76,4 +83,5 @@ public class CopyFileVisitorImpl implements ReproducibleFileVisitor {
     public boolean isReproducibleFileOrder() {
         return reproducibleFileOrder;
     }
+
 }

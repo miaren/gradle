@@ -22,6 +22,7 @@ import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.FilePermissions;
 import org.gradle.internal.exceptions.Contextual;
 import org.gradle.internal.file.Chmod;
+import org.gradle.util.Path;
 import org.gradle.util.internal.GFileUtils;
 
 import java.io.File;
@@ -29,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 
 public abstract class AbstractFileTreeElement implements FileTreeElement {
     private final Chmod chmod;
@@ -76,7 +78,16 @@ public abstract class AbstractFileTreeElement implements FileTreeElement {
     public boolean copyTo(File target) {
         validateTimeStamps();
         try {
-            if (isDirectory()) {
+            if (isSymbolicLink()) {
+                GFileUtils.mkdirs(target.getParentFile());
+                Path linkTarget = getLinkTarget();
+                if (null == linkTarget)
+                    throw new GradleException(String.format("Null target for link %s.", getDisplayName()));
+                if (target.exists())
+                    target.delete();
+                Files.createSymbolicLink(target.toPath(), new File(linkTarget.getPath()).toPath());
+                return true;
+            } else if (isDirectory()) {
                 GFileUtils.mkdirs(target);
             } else {
                 GFileUtils.mkdirs(target.getParentFile());
@@ -103,6 +114,11 @@ public abstract class AbstractFileTreeElement implements FileTreeElement {
         } finally {
             outputStream.close();
         }
+    }
+
+    @Override
+    public Path getLinkTarget() {
+        return null;
     }
 
     @Override

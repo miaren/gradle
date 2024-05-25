@@ -32,6 +32,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.Actions;
 import org.gradle.internal.file.Chmod;
+import org.gradle.util.Path;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -39,6 +40,7 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Map;
 
 public class DefaultFileCopyDetails extends AbstractFileTreeElement implements FileVisitDetails, FileCopyDetailsInternal {
@@ -49,6 +51,7 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     private boolean defaultDuplicatesStrategy;
     private RelativePath relativePath;
     private boolean excluded;
+    private boolean followLink = true; // Gradle historically follows links.
 
     private DefaultConfigurableFilePermissions permissions;
     private DuplicatesStrategy duplicatesStrategy;
@@ -80,6 +83,13 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     }
 
     @Override
+    public FileVisitDetails followLink() {
+        if (!followLink)
+            throw new UnsupportedOperationException();
+        return new DefaultFileCopyDetails(fileDetails.followLink(), specResolver, objectFactory, getChmod());
+    }
+
+    @Override
     public File getFile() {
         if (filterChain.hasFilters()) {
             throw new UnsupportedOperationException();
@@ -91,6 +101,11 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     @Override
     public boolean isDirectory() {
         return fileDetails.isDirectory();
+    }
+
+    @Override
+    public boolean isSymbolicLink() {
+        return fileDetails.isSymbolicLink();
     }
 
     @Override
@@ -139,6 +154,8 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     }
 
     private void adaptPermissions(File target) {
+        if (Files.isSymbolicLink(target.toPath()))
+            return;
         int specMode = this.getPermissions().toUnixNumeric();
         getChmod().chmod(target, specMode);
     }
@@ -150,6 +167,11 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
             relativePath = specResolver.getDestPath().append(path.isFile(), path.getSegments());
         }
         return relativePath;
+    }
+
+    @Override
+    public Path getLinkTarget() {
+        return fileDetails.getLinkTarget();
     }
 
     @Override
@@ -260,6 +282,11 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     }
 
     @Override
+    public void setFollowLink(boolean followLink) {
+        this.followLink = followLink;
+    }
+
+    @Override
     public DuplicatesStrategy getDuplicatesStrategy() {
         return this.duplicatesStrategy;
     }
@@ -282,6 +309,11 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     @Override
     public RelativePath getRelativeSourcePath() {
         return this.fileDetails.getRelativePath();
+    }
+
+    @Override
+    public boolean isFollowLink() {
+        return followLink;
     }
 
     private static class ByteCountingOutputStream extends OutputStream {

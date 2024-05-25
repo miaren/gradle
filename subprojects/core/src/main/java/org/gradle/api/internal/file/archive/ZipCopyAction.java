@@ -19,6 +19,7 @@ import org.apache.commons.compress.archivers.zip.UnixStat;
 import org.apache.commons.compress.archivers.zip.Zip64RequiredException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.internal.DocumentationRegistry;
@@ -33,6 +34,7 @@ import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.internal.IoActions;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -107,10 +109,25 @@ public class ZipCopyAction implements CopyAction {
 
         @Override
         public void processFile(FileCopyDetailsInternal details) {
-            if (details.isDirectory()) {
+            if (details.isSymbolicLink()) {
+                visitLink(details);
+            } else if (details.isDirectory()) {
                 visitDir(details);
             } else {
                 visitFile(details);
+            }
+        }
+
+        private void visitLink(FileCopyDetails fileDetails) {
+            try {
+                ZipArchiveEntry archiveEntry = new ZipArchiveEntry(fileDetails.getRelativePath().getPathString());
+                archiveEntry.setTime(getArchiveTimeFor(fileDetails));
+                archiveEntry.setUnixMode(UnixStat.LINK_FLAG | fileDetails.getPermissions().toUnixNumeric());
+                zipOutStr.putArchiveEntry(archiveEntry);
+                IOUtils.write(fileDetails.getLinkTarget().getPath(), zipOutStr, StandardCharsets.UTF_8);
+                zipOutStr.closeArchiveEntry();
+            } catch (Exception e) {
+                throw new GradleException(String.format("Could not add %s to ZIP '%s'.", fileDetails, zipFile), e);
             }
         }
 

@@ -95,6 +95,11 @@ public interface FileCopyDetails extends FileTreeElement, ContentFilterable, Des
     void setDuplicatesStrategy(DuplicatesStrategy strategy);
 
     /**
+     * Set to true if this element should be followed, assuming it's a symbolic link.
+     */
+    void setFollowLink(boolean followLink);
+
+    /**
      * The strategy to use if there is already a file at this file's destination.
      * <p>
      * The value can be set with a case-insensitive string of the enum value (e.g. {@code 'exclude'} for {@link DuplicatesStrategy#EXCLUDE}).
@@ -154,5 +159,14 @@ public interface FileCopyDetails extends FileTreeElement, ContentFilterable, Des
      * @return The path, relative to the root of the containing file tree. Never returns null.
      */
     RelativePath getRelativeSourcePath();
+
+    /**
+     * Returns true if this element should be followed, assuming it's a symbolic link.
+     *
+     * @return true if this element should be followed, if it's a symbolic link.
+     *
+     * @since 8.7 (Miaren)
+     */
+    boolean isFollowLink();
 
 }

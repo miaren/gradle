@@ -16,6 +16,8 @@
 
 package org.gradle.execution.plan;
 
+import org.gradle.api.GradleException;
+import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.FilePermissions;
 import org.gradle.api.file.RelativePath;
@@ -23,6 +25,7 @@ import org.gradle.api.internal.file.DefaultFilePermissions;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.UncheckedException;
 import org.gradle.internal.file.Stat;
+import org.gradle.util.Path;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +84,11 @@ public class SingleFileTreeElementMatcher {
         }
 
         @Override
+        public boolean isSymbolicLink() {
+            return Files.isSymbolicLink(file.toPath());
+        }
+
+        @Override
         public long getLastModified() {
             return file.lastModified();
         }
@@ -92,6 +100,8 @@ public class SingleFileTreeElementMatcher {
 
         @Override
         public InputStream open() {
+            if (isSymbolicLink())
+                throw new GradleException("Cannot open() a symbolic link.");
             try {
                 return Files.newInputStream(file.toPath());
             } catch (IOException e) {
@@ -117,6 +127,16 @@ public class SingleFileTreeElementMatcher {
         @Override
         public String getPath() {
             return relativePath.getPathString();
+        }
+
+        @Override
+        public Path getLinkTarget() {
+            try {
+                java.nio.file.Path path = Files.readSymbolicLink(file.toPath());
+                return Path.path(path.toString());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
 
         @Override

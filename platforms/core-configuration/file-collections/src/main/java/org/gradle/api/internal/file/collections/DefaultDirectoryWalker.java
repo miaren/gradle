@@ -41,7 +41,7 @@ public class DefaultDirectoryWalker implements DirectoryWalker {
     public void walkDir(Path rootDir, RelativePath rootPath, FileVisitor visitor, Spec<? super FileTreeElement> spec, AtomicBoolean stopFlag, boolean postfix) {
         try {
             PathVisitor pathVisitor = new PathVisitor(spec, postfix, visitor, stopFlag, rootPath, fileSystem);
-            Files.walkFileTree(rootDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, pathVisitor);
+            Files.walkFileTree(rootDir, EnumSet.noneOf(FileVisitOption.class), Integer.MAX_VALUE, pathVisitor);
         } catch (IOException e) {
             throw new GradleException(String.format("Could not list contents of directory '%s'.", rootDir), e);
         }

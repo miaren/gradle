@@ -16,6 +16,7 @@
 package org.gradle.api.file;
 
 import org.gradle.api.Incubating;
+import org.gradle.util.Path;
 
 import java.io.File;
 import java.io.InputStream;
@@ -33,11 +34,20 @@ public interface FileTreeElement {
     File getFile();
 
     /**
-     * Returns true if this element is a directory, or false if this element is a regular file.
+     * Returns true if this element is a directory, or false if this element is a regular file or symbolic link.
      *
      * @return true if this element is a directory.
      */
     boolean isDirectory();
+
+    /**
+     * Returns true if this element is a symbolic link, or false if this element is a regular file or directory.
+     *
+     * @return true if this element is a symbolic link.
+     *
+     * @since 8.7 (Miaren)
+     */
+    boolean isSymbolicLink();
 
     /**
      * Returns the last modified time of this file at the time of file traversal.
@@ -91,6 +101,13 @@ public interface FileTreeElement {
      * @return The path. Never returns null.
      */
     String getPath();
+
+    /**
+     * @return The symbolic link target or null.
+     *
+     * @since 8.7 (Miaren)
+     */
+    Path getLinkTarget();
 
     /**
      * Returns the path of this file, relative to the root of the containing file tree.

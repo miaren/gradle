@@ -16,12 +16,16 @@
 
 package org.gradle.api.internal.file;
 
+import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.RelativePath;
 import org.gradle.internal.file.Chmod;
 import org.gradle.internal.file.Stat;
+import org.gradle.internal.nativeintegration.filesystem.FileSystem;
+import org.gradle.internal.nativeintegration.services.FileSystems;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultFileVisitDetails extends DefaultFileTreeElement implements FileVisitDetails {
@@ -36,4 +40,19 @@ public class DefaultFileVisitDetails extends DefaultFileTreeElement implements F
     public void stopVisiting() {
         stop.set(true);
     }
+
+    @Override
+    public FileVisitDetails followLink() {
+        if (!isSymbolicLink())
+            throw new UnsupportedOperationException();
+        try {
+            File linkTargetFile = getFile().getCanonicalFile();
+            FileSystem fileSystem = FileSystems.getDefault();
+            RelativePath path = new RelativePath(linkTargetFile.isDirectory(), linkTargetFile.getCanonicalPath().split("/"));
+            return new DefaultFileVisitDetails(linkTargetFile, path, stop, fileSystem, fileSystem);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
 }

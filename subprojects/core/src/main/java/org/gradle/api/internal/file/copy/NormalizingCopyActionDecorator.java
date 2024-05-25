@@ -30,6 +30,7 @@ import org.gradle.api.internal.file.AbstractFileTreeElement;
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.internal.file.Chmod;
+import org.gradle.util.Path;
 
 import java.io.File;
 import java.io.FilterReader;
@@ -136,6 +137,11 @@ public class NormalizingCopyActionDecorator implements CopyAction {
         }
 
         @Override
+        public boolean isSymbolicLink() {
+            return false;
+        }
+
+        @Override
         public long getLastModified() {
             return lastModified;
         }
@@ -196,6 +202,16 @@ public class NormalizingCopyActionDecorator implements CopyAction {
         }
 
         @Override
+        public void setFollowLink(boolean followLink) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Path getLinkTarget() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public DuplicatesStrategy getDuplicatesStrategy() {
             throw new UnsupportedOperationException();
         }
@@ -217,6 +233,11 @@ public class NormalizingCopyActionDecorator implements CopyAction {
 
         @Override
         public RelativePath getRelativeSourcePath() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isFollowLink() {
             throw new UnsupportedOperationException();
         }
 

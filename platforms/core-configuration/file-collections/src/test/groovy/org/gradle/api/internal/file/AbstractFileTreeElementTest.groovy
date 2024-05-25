@@ -109,6 +109,11 @@ class AbstractFileTreeElementTest extends AbstractProjectBuilderSpec {
             return file.isDirectory()
         }
 
+        @Override
+        boolean isSymbolicLink() {
+            return false
+        }
+
         long getSize() {
             return file.length()
         }

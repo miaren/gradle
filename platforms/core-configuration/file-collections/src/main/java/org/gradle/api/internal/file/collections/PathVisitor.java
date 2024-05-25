@@ -28,11 +28,14 @@ import org.gradle.internal.nativeintegration.filesystem.FileSystem;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.FileSystemLoopException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class PathVisitor implements java.nio.file.FileVisitor<Path> {
@@ -43,6 +46,7 @@ class PathVisitor implements java.nio.file.FileVisitor<Path> {
     private final AtomicBoolean stopFlag;
     private final RelativePath rootPath;
     private final FileSystem fileSystem;
+    private int initialHolderSize = 0;
 
     public PathVisitor(Spec<? super FileTreeElement> spec, boolean postfix, FileVisitor visitor, AtomicBoolean stopFlag, RelativePath rootPath, FileSystem fileSystem) {
         this.spec = spec;
@@ -60,9 +64,12 @@ class PathVisitor implements java.nio.file.FileVisitor<Path> {
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         FileVisitDetails details = getFileVisitDetails(dir, attrs);
-        if (directoryDetailsHolder.size() == 0 || shouldVisit(details)) {
+
+        if (directoryDetailsHolder.size() == initialHolderSize || shouldVisit(details)) {
             directoryDetailsHolder.push(details);
-            if (directoryDetailsHolder.size() > 1 && !postfix) {
+            if (directoryDetailsHolder.size() > (initialHolderSize + 1) && !postfix) {
+                if (attrs.isSymbolicLink())
+                    return visitLink(details);
                 visitor.visitDir(details);
             }
             return checkStopFlag();
@@ -80,14 +87,33 @@ class PathVisitor implements java.nio.file.FileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
         FileVisitDetails details = getFileVisitDetails(file, attrs);
-        if (shouldVisit(details)) {
-            if (attrs.isSymbolicLink()) {
-                // when FileVisitOption.FOLLOW_LINKS, we only get here when link couldn't be followed
-                throw new GradleException(String.format("Couldn't follow symbolic link '%s'.", file));
-            }
-            visitor.visitFile(details);
-        }
+        if (!shouldVisit(details))
+            return checkStopFlag();
+
+        if (attrs.isSymbolicLink())
+            return visitLink(details);
+
+        visitor.visitFile(details);
         return checkStopFlag();
+    }
+
+    private FileVisitResult visitLink(FileVisitDetails details) {
+        try {
+            visitor.visitFile(details);
+            return FileVisitResult.SKIP_SUBTREE;
+        } catch (LinkedDirectoryNeedsWalking ex) {
+            try {
+                Path rootDir = details.getFile().toPath();
+                int prevInitialHolderSize = initialHolderSize;
+                initialHolderSize = directoryDetailsHolder.size();
+                // FIXME: This copies everything recursively... :(
+                Files.walkFileTree(rootDir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, this);
+                initialHolderSize = prevInitialHolderSize;
+                return checkStopFlag();
+            } catch (IOException e) {
+                throw new GradleException(String.format("Could not list contents of directory '%s'.", details.getFile()), e);
+            }
+        }
     }
 
     private FileVisitDetails getFileVisitDetails(Path file, @Nullable BasicFileAttributes attrs) {

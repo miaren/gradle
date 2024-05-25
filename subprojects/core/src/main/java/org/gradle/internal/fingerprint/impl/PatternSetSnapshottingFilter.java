@@ -101,6 +101,11 @@ public class PatternSetSnapshottingFilter implements SnapshottingFilter {
         }
 
         @Override
+        public boolean isSymbolicLink() {
+            return false;
+        }
+
+        @Override
         public long getLastModified() {
             return getFile().lastModified();
         }
@@ -133,6 +138,11 @@ public class PatternSetSnapshottingFilter implements SnapshottingFilter {
         @Override
         public String getPath() {
             return getRelativePath().getPathString();
+        }
+
+        @Override
+        public org.gradle.util.Path getLinkTarget() {
+            return null;
         }
 
         @Override
@@ -181,6 +191,11 @@ public class PatternSetSnapshottingFilter implements SnapshottingFilter {
         }
 
         @Override
+        public boolean isSymbolicLink() {
+            return false;
+        }
+
+        @Override
         public long getLastModified() {
             return getFile().lastModified();
         }
@@ -217,6 +232,11 @@ public class PatternSetSnapshottingFilter implements SnapshottingFilter {
         @Override
         public String getPath() {
             return getRelativePath().getPathString();
+        }
+
+        @Override
+        public org.gradle.util.Path getLinkTarget() {
+            return null;
         }
 
         @Override

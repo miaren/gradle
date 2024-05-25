@@ -97,10 +97,26 @@ public class TarCopyAction implements CopyAction {
 
         @Override
         public void processFile(FileCopyDetailsInternal details) {
-            if (details.isDirectory()) {
+            if (details.isSymbolicLink()) {
+                visitLink(details);
+            } else if (details.isDirectory()) {
                 visitDir(details);
             } else {
                 visitFile(details);
+            }
+        }
+
+        private void visitLink(FileCopyDetails fileDetails) {
+            try {
+                TarArchiveEntry archiveEntry = new TarArchiveEntry(fileDetails.getRelativePath().getPathString());
+                archiveEntry.setModTime(getArchiveTimeFor(fileDetails));
+                archiveEntry.setSize(fileDetails.getSize());
+                archiveEntry.setMode(UnixStat.LINK_FLAG | fileDetails.getPermissions().toUnixNumeric());
+                archiveEntry.setLinkName(fileDetails.getLinkTarget().getPath());
+                tarOutStr.putArchiveEntry(archiveEntry);
+                tarOutStr.closeArchiveEntry();
+            } catch (Exception e) {
+                throw new GradleException(String.format("Could not add %s to TAR '%s'.", fileDetails, tarFile), e);
             }
         }
 

@@ -21,6 +21,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.gradle.api.GradleException;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.file.FilePermissions;
+import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.internal.file.DefaultFilePermissions;
 import org.gradle.api.internal.file.collections.DirectoryFileTree;
@@ -63,7 +64,7 @@ public class TarFileTree extends AbstractArchiveFileTree {
         FileHasher fileHasher,
         DecompressionCoordinator decompressionCoordinator,
         TemporaryFileProvider temporaryExtractionDir
-        ) {
+    ) {
         super(decompressionCoordinator);
         this.tarFileProvider = tarFileProvider;
         this.resource = resource;
@@ -113,9 +114,9 @@ public class TarFileTree extends AbstractArchiveFileTree {
                 throw e; // Gradle exceptions are already meant to be human-readable, so just rethrow it
             } catch (Exception e) {
                 String message = "Unable to expand " + getDisplayName() + "\n"
-                        + "  The tar might be corrupted or it is compressed in an unexpected way.\n"
-                        + "  By default the tar tree tries to guess the compression based on the file extension.\n"
-                        + "  If you need to specify the compression explicitly please refer to the DSL reference.";
+                    + "  The tar might be corrupted or it is compressed in an unexpected way.\n"
+                    + "  By default the tar tree tries to guess the compression based on the file extension.\n"
+                    + "  If you need to specify the compression explicitly please refer to the DSL reference.";
                 throw new GradleException(message, e);
             }
         });
@@ -219,6 +220,11 @@ public class TarFileTree extends AbstractArchiveFileTree {
         }
 
         @Override
+        public boolean isSymbolicLink() {
+            return false;
+        }
+
+        @Override
         public InputStream open() {
             if (read) {
                 getFile();
@@ -244,6 +250,11 @@ public class TarFileTree extends AbstractArchiveFileTree {
         @Override
         protected TarArchiveEntry getArchiveEntry() {
             return entry;
+        }
+
+        @Override
+        public FileVisitDetails followLink() {
+            throw new UnsupportedOperationException();
         }
 
         private static final class NoCloseTarArchiveInputStream extends TarArchiveInputStream {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.file;
+
+package org.gradle.api.internal.file.collections;
 
 /**
- * Provides access to details about a file or directory being visited by a {@link FileVisitor}.
- *
- * @see FileTree#visit(groovy.lang.Closure)
+ * Thrown when a linked directory is required to be walked by an inner visitor.
+ * @author matis
  */
-public interface FileVisitDetails extends FileTreeElement {
+public final class LinkedDirectoryNeedsWalking extends RuntimeException {
 
-    /**
-     * Requests that file visiting terminate after the current file.
-     */
-    void stopVisiting();
+    private LinkedDirectoryNeedsWalking() {
+    }
 
-    /**
-     * If this is a symbolic link, follow it and return the details of its target.
-     */
-    FileVisitDetails followLink();
+    @SuppressWarnings("DoNotCallSuggester")
+    public static void raise() throws LinkedDirectoryNeedsWalking {
+        throw new LinkedDirectoryNeedsWalking();
+    }
 
 }
