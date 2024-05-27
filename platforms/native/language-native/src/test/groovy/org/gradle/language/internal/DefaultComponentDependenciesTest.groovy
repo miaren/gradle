@@ -37,7 +37,7 @@ class DefaultComponentDependenciesTest extends Specification {
         configurations.dependencyScopeUnlocked("impl") >> implDeps
         implDeps.dependencies >> deps
 
-        dependencies = new DefaultComponentDependencies(configurations, "impl") {
+        dependencies = new DefaultComponentDependencies(NativeFeature.create(configurations)) {
             @Override
             protected DependencyHandler getDependencyHandler() {
                 return dependencyFactory

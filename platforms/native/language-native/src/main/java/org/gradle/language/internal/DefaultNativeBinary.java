@@ -17,7 +17,6 @@
 package org.gradle.language.internal;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -31,14 +30,16 @@ import org.gradle.language.nativeplatform.internal.Names;
 public abstract class DefaultNativeBinary implements ComponentWithNames, ComponentWithObjectFiles, ComponentWithDependencies {
     private final Names names;
     private final DirectoryProperty objectsDir;
+    private final NativeFeature feature;
     private final DefaultComponentDependencies dependencies;
 
-    public DefaultNativeBinary(Names names, ObjectFactory objectFactory, Configuration componentImplementation) {
+    public DefaultNativeBinary(Names names, ObjectFactory objectFactory, NativeFeature feature) {
         this.names = names;
 
         this.objectsDir = objectFactory.directoryProperty();
-        dependencies = objectFactory.newInstance(DefaultComponentDependencies.class, names.getName() + "Implementation");
-        dependencies.getImplementationDependencies().extendsFrom(componentImplementation);
+        this.feature = objectFactory.newInstance(NativeFeature.Application.class, getNames());
+        this.feature.extendsFrom(feature);
+        dependencies = objectFactory.newInstance(DefaultComponentDependencies.class, this.feature);
     }
 
     @Override
@@ -69,7 +70,8 @@ public abstract class DefaultNativeBinary implements ComponentWithNames, Compone
         action.execute(getDependencies());
     }
 
-    public Configuration getImplementationDependencies() {
-        return dependencies.getImplementationDependencies();
+    public NativeFeature getFeature() {
+        return feature;
     }
+
 }

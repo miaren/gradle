@@ -21,6 +21,7 @@ import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.language.nativeplatform.ComponentWithLinkUsage;
 import org.gradle.nativeplatform.Linkage;
 
@@ -30,7 +31,7 @@ import javax.annotation.Nullable;
  * A configurable view of a component that has a link usage. This should become public in some form.
  */
 public interface ConfigurableComponentWithLinkUsage extends ComponentWithLinkUsage, ComponentWithNames {
-    Configuration getImplementationDependencies();
+    NativeFeature getFeature();
 
     @Nullable
     Linkage getLinkage();

@@ -17,12 +17,12 @@
 package org.gradle.language.cpp;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.language.LibraryDependencies;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.nativeplatform.Linkage;
 
 /**
@@ -66,9 +66,10 @@ public interface CppLibrary extends ProductionCppComponent {
     LibraryDependencies getDependencies();
 
     /**
-     * Returns the API dependencies of this library.
+     * Returns the feature of this library.
      */
-    Configuration getApiDependencies();
+    @Override
+    NativeFeature.Library getFeature();
 
     /**
      * Returns the list of linkage of this library.

@@ -28,6 +28,7 @@ import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.cpp.internal.DefaultCppComponent;
 import org.gradle.language.cpp.internal.NativeVariantIdentity;
 import org.gradle.language.internal.DefaultComponentDependencies;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.language.nativeplatform.internal.Names;
 import org.gradle.nativeplatform.test.cpp.CppTestExecutable;
 import org.gradle.nativeplatform.test.cpp.CppTestSuite;
@@ -41,6 +42,7 @@ public class DefaultCppTestSuite extends DefaultCppComponent implements CppTestS
     private final Property<CppComponent> testedComponent;
     private final Property<CppTestExecutable> testBinary;
     private final DefaultComponentDependencies dependencies;
+    private final NativeFeature feature;
 
     @Inject
     public DefaultCppTestSuite(String name, ObjectFactory objectFactory) {
@@ -48,12 +50,13 @@ public class DefaultCppTestSuite extends DefaultCppComponent implements CppTestS
         this.objectFactory = objectFactory;
         this.testedComponent = objectFactory.property(CppComponent.class);
         this.testBinary = objectFactory.property(CppTestExecutable.class);
-        this.dependencies = objectFactory.newInstance(DefaultComponentDependencies.class, getNames().withSuffix("implementation"));
+        this.feature = objectFactory.newInstance(NativeFeature.Application.class, getNames());
+        this.dependencies = objectFactory.newInstance(DefaultComponentDependencies.class, this.feature);
     }
 
     public CppTestExecutable addExecutable(String variantName, NativeVariantIdentity identity, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider) {
         Names executableNames = Names.of(getName() + variantName + "Executable", getName() + variantName);
-        CppTestExecutable testBinary = objectFactory.newInstance(DefaultCppTestExecutable.class, executableNames, getBaseName(), getCppSource(), getPrivateHeaderDirs(), getImplementationDependencies(), getTestedComponent(), targetPlatform, toolChain, platformToolProvider, identity);
+        CppTestExecutable testBinary = objectFactory.newInstance(DefaultCppTestExecutable.class, executableNames, getBaseName(), getCppSource(), getPrivateHeaderDirs(), feature, getTestedComponent(), targetPlatform, toolChain, platformToolProvider, identity);
         getBinaries().add(testBinary);
         return testBinary;
     }
@@ -64,8 +67,8 @@ public class DefaultCppTestSuite extends DefaultCppComponent implements CppTestS
     }
 
     @Override
-    public Configuration getImplementationDependencies() {
-        return dependencies.getImplementationDependencies();
+    public NativeFeature getFeature() {
+        return feature;
     }
 
     @Override

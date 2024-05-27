@@ -39,4 +39,44 @@ public interface ComponentDependencies {
      * @param action The action to run to configure the dependency.
      */
     void implementation(Object notation, Action<? super ExternalModuleDependency> action);
+
+    /**
+     * Adds a link-only dependency to this component. Symbols are expected to be provided at runtime.
+     *
+     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+     *
+     * @since 8.7 (Miaren)
+     */
+    void linkOnly(Object notation);
+
+    /**
+     * Adds a link-only dependency to this component. Symbols are expected to be provided at runtime.
+     *
+     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+     * @param action The action to run to configure the dependency.
+     *
+     * @since 8.7 (Miaren)
+     */
+    void linkOnly(Object notation, Action<? super ExternalModuleDependency> action);
+
+    /**
+     * Adds a runtime-only dependency to this component. Symbols won't be linked against. Useful for plugins.
+     *
+     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+     *
+     * @since 8.7 (Miaren)
+     */
+    void runtimeOnly(Object notation);
+
+    /**
+     * Adds a runtime-only dependency to this component. Symbols won't be linked against. Useful for plugins.
+     *
+     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+     * @param action The action to run to configure the dependency.
+     *
+     * @since 8.7 (Miaren)
+     */
+    void runtimeOnly(Object notation, Action<? super ExternalModuleDependency> action);
+
+
 }

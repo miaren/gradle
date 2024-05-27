@@ -118,12 +118,16 @@ class GccLinker extends AbstractCompiler<DefaultLinkerSpec> {
                             args.add(file.getAbsolutePath());
                             break;
                         case WEAK:
-                            args.add("-Wl,-weak-l" + file.getAbsolutePath());
+                            args.add("-Wl,-weak_library");
+                            args.add(file.getAbsolutePath());
                             break;
                         case UPWARD:
-                            args.add("-Wl,-upward-l" + file.getAbsolutePath());
+                            args.add("-Wl,-upward_library");
+                            args.add(file.getAbsolutePath());
                             break;
                     }
+                } else {
+                    args.add(file.getAbsolutePath());
                 }
                 if (dep.isWholeArchive()) {
                     if (!targetOs.isMacOsX()) {

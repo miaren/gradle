@@ -100,7 +100,7 @@ public abstract class UnexportMainSymbol extends DefaultTask {
 
     private void unexportMainSymbol(File object) {
         final File relocatedObject = relocatedObject(object);
-        if (OperatingSystem.current().isWindows()) {
+        if (!OperatingSystem.current().isWindows()) {
             try {
                 final SymbolHider symbolHider = new SymbolHider(object);
                 symbolHider.hideSymbol("main");     // 64 bit

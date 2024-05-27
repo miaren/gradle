@@ -23,18 +23,20 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.language.ComponentDependencies;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public class DefaultComponentDependencies implements ComponentDependencies {
-    private final Configuration implementation;
+    private final NativeFeature feature;
 
     @Inject
-    public DefaultComponentDependencies(RoleBasedConfigurationContainerInternal configurations, String implementationName) {
-        implementation = configurations.dependencyScopeUnlocked(implementationName);
+    public DefaultComponentDependencies(NativeFeature feature) {
+        this.feature = feature;
     }
 
-    public Configuration getImplementationDependencies() {
-        return implementation;
+    @Nonnull
+    public NativeFeature getFeature() {
+        return feature;
     }
 
     @Inject
@@ -44,13 +46,38 @@ public class DefaultComponentDependencies implements ComponentDependencies {
 
     @Override
     public void implementation(Object notation) {
-        implementation.getDependencies().add(getDependencyHandler().create(notation));
+        getFeature().getImplementation().getDependencies().add(getDependencyHandler().create(notation));
     }
 
     @Override
     public void implementation(Object notation, Action<? super ExternalModuleDependency> action) {
         ExternalModuleDependency dependency = (ExternalModuleDependency) getDependencyHandler().create(notation);
         action.execute(dependency);
-        implementation.getDependencies().add(dependency);
+        getFeature().getImplementation().getDependencies().add(dependency);
     }
+
+    @Override
+    public void linkOnly(Object notation) {
+        getFeature().getLinkOnly().getDependencies().add(getDependencyHandler().create(notation));
+    }
+
+    @Override
+    public void linkOnly(Object notation, Action<? super ExternalModuleDependency> action) {
+        ExternalModuleDependency dependency = (ExternalModuleDependency) getDependencyHandler().create(notation);
+        action.execute(dependency);
+        getFeature().getLinkOnly().getDependencies().add(dependency);
+    }
+
+    @Override
+    public void runtimeOnly(Object notation) {
+        getFeature().getRuntimeOnly().getDependencies().add(getDependencyHandler().create(notation));
+    }
+
+    @Override
+    public void runtimeOnly(Object notation, Action<? super ExternalModuleDependency> action) {
+        ExternalModuleDependency dependency = (ExternalModuleDependency) getDependencyHandler().create(notation);
+        action.execute(dependency);
+        getFeature().getRuntimeOnly().getDependencies().add(dependency);
+    }
+
 }

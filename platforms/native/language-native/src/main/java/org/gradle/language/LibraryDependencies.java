@@ -39,4 +39,21 @@ public interface LibraryDependencies extends ComponentDependencies {
      * @param action The action to run to configure the dependency.
      */
     void api(Object notation, Action<? super ExternalModuleDependency> action);
+
+    /**
+     * Adds a header-only dependency to this library. A header-only dependency is made visible to consumers that are compiled against this component,
+     * but its runtime and linktime configurations aren't resolved.
+     *
+     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+     */
+    void headerOnlyApi(Object notation);
+
+    /**
+     * Adds a header-only dependency to this library. A header-only dependency is made visible to consumers that are compiled against this component,
+     * but its runtime and linktime configurations aren't resolved.
+     *
+     * @param notation The dependency notation, as per {@link org.gradle.api.artifacts.dsl.DependencyHandler#create(Object)}.
+     * @param action The action to run to configure the dependency.
+     */
+    void headerOnlyApi(Object notation, Action<? super ExternalModuleDependency> action);
 }

@@ -17,7 +17,6 @@
 package org.gradle.language.cpp.internal;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.internal.Describables;
@@ -27,6 +26,7 @@ import org.gradle.language.cpp.CppApplication;
 import org.gradle.language.cpp.CppExecutable;
 import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.internal.DefaultComponentDependencies;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.language.nativeplatform.internal.PublicationAwareComponent;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
@@ -37,6 +37,7 @@ public class DefaultCppApplication extends DefaultCppComponent implements CppApp
     private final ObjectFactory objectFactory;
     private final Property<CppExecutable> developmentBinary;
     private final MainExecutableVariant mainVariant;
+    private final NativeFeature feature;
     private final DefaultComponentDependencies dependencies;
 
     @Inject
@@ -44,12 +45,13 @@ public class DefaultCppApplication extends DefaultCppComponent implements CppApp
         super(name, objectFactory);
         this.objectFactory = objectFactory;
         this.developmentBinary = objectFactory.property(CppExecutable.class);
-        this.dependencies = objectFactory.newInstance(DefaultComponentDependencies.class, getNames().withSuffix("implementation"));
+        this.feature = objectFactory.newInstance(NativeFeature.Application.class, getNames());
+        this.dependencies = objectFactory.newInstance(DefaultComponentDependencies.class, feature);
         this.mainVariant = new MainExecutableVariant(objectFactory);
     }
 
     public DefaultCppExecutable addExecutable(NativeVariantIdentity identity, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider) {
-        DefaultCppExecutable result = objectFactory.newInstance(DefaultCppExecutable.class, getNames().append(identity.getName()), getBaseName(), getCppSource(), getPrivateHeaderDirs(), getImplementationDependencies(), targetPlatform, toolChain, platformToolProvider, identity);
+        DefaultCppExecutable result = objectFactory.newInstance(DefaultCppExecutable.class, getNames().append(identity.getName()), getBaseName(), getCppSource(), getPrivateHeaderDirs(), feature, targetPlatform, toolChain, platformToolProvider, identity);
         getBinaries().add(result);
         return result;
     }
@@ -60,8 +62,8 @@ public class DefaultCppApplication extends DefaultCppComponent implements CppApp
     }
 
     @Override
-    public Configuration getImplementationDependencies() {
-        return dependencies.getImplementationDependencies();
+    public NativeFeature getFeature() {
+        return feature;
     }
 
     @Override

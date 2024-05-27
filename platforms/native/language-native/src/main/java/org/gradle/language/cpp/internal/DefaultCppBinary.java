@@ -22,8 +22,6 @@ import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationRolesForMigration;
-import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.api.internal.file.temp.TemporaryFileProvider;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -32,6 +30,7 @@ import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.language.internal.DefaultNativeBinary;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.language.nativeplatform.internal.Names;
 import org.gradle.nativeplatform.Linkage;
 import org.gradle.nativeplatform.MachineArchitecture;
@@ -56,8 +55,8 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
     private final Property<CppCompile> compileTaskProperty;
     private final NativeVariantIdentity identity;
 
-    public DefaultCppBinary(Names names, ObjectFactory objects, Provider<String> baseName, FileCollection sourceFiles, FileCollection componentHeaderDirs, RoleBasedConfigurationContainerInternal configurations, Configuration componentImplementation, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider, NativeVariantIdentity identity) {
-        super(names, objects, componentImplementation);
+    public DefaultCppBinary(Names names, ObjectFactory objects, Provider<String> baseName, FileCollection sourceFiles, FileCollection componentHeaderDirs, NativeFeature baseFeature, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider, NativeVariantIdentity identity) {
+        super(names, objects, baseFeature);
         this.baseName = baseName;
         this.sourceFiles = sourceFiles;
         this.targetPlatform = targetPlatform;
@@ -66,41 +65,32 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         this.compileTaskProperty = objects.property(CppCompile.class);
         this.identity = identity;
 
-        // TODO - reduce duplication with Swift binary
-
-        @SuppressWarnings("deprecation")
-        Configuration ipc = configurations.resolvableDependencyScopeUnlocked(names.withPrefix("cppCompile"));
-        includePathConfiguration = ipc;
+        includePathConfiguration = getFeature().getIncludePath();
         includePathConfiguration.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API));
         includePathConfiguration.getAttributes().attribute(DEBUGGABLE_ATTRIBUTE, identity.isDebuggable());
         includePathConfiguration.getAttributes().attribute(OPTIMIZED_ATTRIBUTE, identity.isOptimized());
         includePathConfiguration.getAttributes().attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, identity.getTargetMachine().getOperatingSystemFamily());
         includePathConfiguration.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
-        includePathConfiguration.extendsFrom(getImplementationDependencies());
 
-        @SuppressWarnings("deprecation")
-        Configuration nativeLink = configurations.resolvableDependencyScopeUnlocked(names.withPrefix("nativeLink"));
+        Configuration nativeLink = getFeature().getLinktimePath();
         nativeLink.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.NATIVE_LINK));
         nativeLink.getAttributes().attribute(DEBUGGABLE_ATTRIBUTE, identity.isDebuggable());
         nativeLink.getAttributes().attribute(OPTIMIZED_ATTRIBUTE, identity.isOptimized());
         nativeLink.getAttributes().attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, identity.getTargetMachine().getOperatingSystemFamily());
         nativeLink.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
-        nativeLink.extendsFrom(getImplementationDependencies());
 
-        @SuppressWarnings("deprecation")
-        Configuration nativeRuntime = configurations.migratingUnlocked(names.withPrefix("nativeRuntime"), ConfigurationRolesForMigration.RESOLVABLE_DEPENDENCY_SCOPE_TO_RESOLVABLE);
+        Configuration nativeRuntime = getFeature().getRuntimePath();
         nativeRuntime.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.NATIVE_RUNTIME));
         nativeRuntime.getAttributes().attribute(DEBUGGABLE_ATTRIBUTE, identity.isDebuggable());
         nativeRuntime.getAttributes().attribute(OPTIMIZED_ATTRIBUTE, identity.isOptimized());
         nativeRuntime.getAttributes().attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, identity.getTargetMachine().getOperatingSystemFamily());
         nativeRuntime.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
-        nativeRuntime.extendsFrom(getImplementationDependencies());
 
         ArtifactView includeDirs = includePathConfiguration.getIncoming().artifactView(viewConfiguration -> {
-           viewConfiguration.attributes(attributeContainer -> {
-               attributeContainer.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API));
-               attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
-           });
+            viewConfiguration.attributes(attributeContainer -> {
+                attributeContainer.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API));
+                attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
+            });
         });
         includePath = componentHeaderDirs.plus(includeDirs.getFiles());
         linkLibraries = nativeLink;

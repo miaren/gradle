@@ -24,8 +24,6 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationRolesForMigration;
-import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -38,6 +36,7 @@ import org.gradle.language.cpp.CppBinary;
 import org.gradle.language.cpp.CppLibrary;
 import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.internal.DefaultLibraryDependencies;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.language.nativeplatform.internal.PublicationAwareComponent;
 import org.gradle.nativeplatform.Linkage;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
@@ -54,10 +53,11 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
     private final Property<CppBinary> developmentBinary;
     private final Configuration apiElements;
     private final MainLibraryVariant mainVariant;
+    private final NativeFeature.Library feature;
     private final DefaultLibraryDependencies dependencies;
 
     @Inject
-    public DefaultCppLibrary(String name, ObjectFactory objectFactory, RoleBasedConfigurationContainerInternal configurations, ImmutableAttributesFactory immutableAttributesFactory) {
+    public DefaultCppLibrary(String name, ObjectFactory objectFactory, ImmutableAttributesFactory immutableAttributesFactory) {
         super(name, objectFactory);
         this.objectFactory = objectFactory;
         this.developmentBinary = objectFactory.property(CppBinary.class);
@@ -67,14 +67,12 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
         linkage = objectFactory.setProperty(Linkage.class);
         linkage.set(Collections.singleton(Linkage.SHARED));
 
-        dependencies = objectFactory.newInstance(DefaultLibraryDependencies.class, getNames().withSuffix("implementation"), getNames().withSuffix("api"));
+        feature = objectFactory.newInstance(NativeFeature.Library.class, getNames());
+        dependencies = objectFactory.newInstance(DefaultLibraryDependencies.class, feature);
 
         Usage apiUsage = objectFactory.named(Usage.class, Usage.C_PLUS_PLUS_API);
 
-        @SuppressWarnings("deprecation")
-        Configuration ae = configurations.migratingUnlocked(getNames().withSuffix("cppApiElements"), ConfigurationRolesForMigration.CONSUMABLE_DEPENDENCY_SCOPE_TO_CONSUMABLE);
-        apiElements = ae;
-        apiElements.extendsFrom(dependencies.getApiDependencies());
+        apiElements = feature.getApiElements();
         apiElements.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, apiUsage);
         apiElements.getAttributes().attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
 
@@ -85,13 +83,13 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
     }
 
     public DefaultCppSharedLibrary addSharedLibrary(NativeVariantIdentity identity, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider) {
-        DefaultCppSharedLibrary result = objectFactory.newInstance(DefaultCppSharedLibrary.class, getNames().append(identity.getName()), getBaseName(), getCppSource(), getAllHeaderDirs(), getImplementationDependencies(), targetPlatform, toolChain, platformToolProvider, identity);
+        DefaultCppSharedLibrary result = objectFactory.newInstance(DefaultCppSharedLibrary.class, getNames().append(identity.getName()), getBaseName(), getCppSource(), getAllHeaderDirs(), feature, targetPlatform, toolChain, platformToolProvider, identity);
         getBinaries().add(result);
         return result;
     }
 
     public DefaultCppStaticLibrary addStaticLibrary(NativeVariantIdentity identity, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider) {
-        DefaultCppStaticLibrary result = objectFactory.newInstance(DefaultCppStaticLibrary.class, getNames().append(identity.getName()), getBaseName(), getCppSource(), getAllHeaderDirs(), getImplementationDependencies(), targetPlatform, toolChain, platformToolProvider, identity);
+        DefaultCppStaticLibrary result = objectFactory.newInstance(DefaultCppStaticLibrary.class, getNames().append(identity.getName()), getBaseName(), getCppSource(), getAllHeaderDirs(), feature, targetPlatform, toolChain, platformToolProvider, identity);
         getBinaries().add(result);
         return result;
     }
@@ -102,18 +100,13 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
     }
 
     @Override
-    public Configuration getImplementationDependencies() {
-        return dependencies.getImplementationDependencies();
-    }
-
-    @Override
-    public Configuration getApiDependencies() {
-        return dependencies.getApiDependencies();
-    }
-
-    @Override
     public LibraryDependencies getDependencies() {
         return dependencies;
+    }
+
+    @Override
+    public NativeFeature.Library getFeature() {
+        return feature;
     }
 
     public void dependencies(Action<? super LibraryDependencies> action) {

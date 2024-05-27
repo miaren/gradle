@@ -35,6 +35,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.cpp.CppStaticLibrary;
+import org.gradle.language.internal.NativeFeature;
 import org.gradle.language.nativeplatform.internal.ConfigurableComponentWithLinkUsage;
 import org.gradle.language.nativeplatform.internal.ConfigurableComponentWithRuntimeUsage;
 import org.gradle.language.nativeplatform.internal.ConfigurableComponentWithStaticLibrary;
@@ -57,8 +58,8 @@ public class DefaultCppStaticLibrary extends DefaultCppBinary implements CppStat
     private final ConfigurableFileCollection outputs;
 
     @Inject
-    public DefaultCppStaticLibrary(Names names, ObjectFactory objectFactory, Provider<String> baseName, FileCollection sourceFiles, FileCollection componentHeaderDirs, RoleBasedConfigurationContainerInternal configurations, Configuration implementation, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider, NativeVariantIdentity identity) {
-        super(names, objectFactory, baseName, sourceFiles, componentHeaderDirs, configurations, implementation, targetPlatform, toolChain, platformToolProvider, identity);
+    public DefaultCppStaticLibrary(Names names, ObjectFactory objectFactory, Provider<String> baseName, FileCollection sourceFiles, FileCollection componentHeaderDirs, RoleBasedConfigurationContainerInternal configurations, NativeFeature.Library feature, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider, NativeVariantIdentity identity) {
+        super(names, objectFactory, baseName, sourceFiles, componentHeaderDirs, feature, targetPlatform, toolChain, platformToolProvider, identity);
         this.linkFile = objectFactory.fileProperty();
         this.linkFileProducer = objectFactory.property(Task.class);
         this.createTaskProperty = objectFactory.property(CreateStaticLibrary.class);

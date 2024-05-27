@@ -187,7 +187,7 @@ public abstract class CppUnitTestPlugin implements Plugin<Project> {
             // This should all be replaced by a single dependency that points at some "testable" variants of the main binary
 
             // Inherit implementation dependencies
-            testExecutable.getImplementationDependencies().extendsFrom(((DefaultCppBinary) testedBinary).getImplementationDependencies());
+            testExecutable.getFeature().extendsFrom(((DefaultCppBinary) testedBinary).getFeature());
 
             // Configure test binary to link against tested component compiled objects
             ConfigurableFileCollection testableObjects = project.files();

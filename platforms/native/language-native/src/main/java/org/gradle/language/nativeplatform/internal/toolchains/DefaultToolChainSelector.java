@@ -19,9 +19,7 @@ package org.gradle.language.nativeplatform.internal.toolchains;
 import org.gradle.internal.Cast;
 import org.gradle.language.cpp.CppPlatform;
 import org.gradle.language.cpp.internal.DefaultCppPlatform;
-import org.gradle.language.swift.SwiftPlatform;
 import org.gradle.language.swift.SwiftVersion;
-import org.gradle.language.swift.internal.DefaultSwiftPlatform;
 import org.gradle.model.internal.registry.ModelRegistry;
 import org.gradle.nativeplatform.TargetMachine;
 import org.gradle.nativeplatform.platform.internal.Architectures;
@@ -31,7 +29,6 @@ import org.gradle.nativeplatform.toolchain.internal.NativeLanguage;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainInternal;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 import org.gradle.nativeplatform.toolchain.internal.PlatformToolProvider;
-import org.gradle.nativeplatform.toolchain.internal.ToolType;
 import org.gradle.util.internal.VersionNumber;
 
 import javax.inject.Inject;
@@ -50,8 +47,6 @@ public class DefaultToolChainSelector implements ToolChainSelector {
     public <T> Result<T> select(Class<T> platformType, T requestPlatform) {
         if (CppPlatform.class.isAssignableFrom(platformType)) {
             return Cast.uncheckedCast(select((CppPlatform) requestPlatform));
-        } else if (SwiftPlatform.class.isAssignableFrom(platformType)) {
-            return Cast.uncheckedCast(select((SwiftPlatform) requestPlatform));
         } else {
             throw new IllegalArgumentException("Unknown type of platform " + platformType);
         }
@@ -71,25 +66,6 @@ public class DefaultToolChainSelector implements ToolChainSelector {
 
         CppPlatform targetPlatform = new DefaultCppPlatform(requestPlatform.getTargetMachine(), targetNativePlatform);
         return new DefaultResult<CppPlatform>(toolChain, toolProvider, targetPlatform);
-    }
-
-    public Result<SwiftPlatform> select(SwiftPlatform requestPlatform) {
-        DefaultNativePlatform targetNativePlatform = newNativePlatform(requestPlatform.getTargetMachine());
-
-        // TODO - push all this stuff down to the tool chain and let it create the specific platform and provider
-
-        NativeLanguage sourceLanguage = NativeLanguage.SWIFT;
-        NativeToolChainInternal toolChain = getToolChain(sourceLanguage, targetNativePlatform);
-
-        // TODO - don't select again here, as the selection is already performed to select the toolchain
-        PlatformToolProvider toolProvider = toolChain.select(sourceLanguage, targetNativePlatform);
-
-        SwiftVersion sourceCompatibility = requestPlatform.getSourceCompatibility();
-        if (sourceCompatibility == null && toolProvider.isAvailable()) {
-            sourceCompatibility = toSwiftVersion(toolProvider.getCompilerMetadata(ToolType.SWIFT_COMPILER).getVersion());
-        }
-        SwiftPlatform targetPlatform = new DefaultSwiftPlatform(requestPlatform.getTargetMachine(), sourceCompatibility, targetNativePlatform);
-        return new DefaultResult<SwiftPlatform>(toolChain, toolProvider, targetPlatform);
     }
 
     private DefaultNativePlatform newNativePlatform(TargetMachine targetMachine) {

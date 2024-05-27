@@ -36,7 +36,7 @@ class DefaultLibraryDependenciesTest extends Specification {
         configurations.dependencyScopeUnlocked("api") >> apiDeps
         apiDeps.dependencies >> deps
 
-        dependencies = new DefaultLibraryDependencies(configurations, "impl", "api") {
+        dependencies = new DefaultLibraryDependencies(NativeFeature.createWithApi(configurations)) {
             @Override
             protected DependencyHandler getDependencyHandler() {
                 return dependencyFactory

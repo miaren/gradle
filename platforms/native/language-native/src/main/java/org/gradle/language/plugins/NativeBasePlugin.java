@@ -37,7 +37,6 @@ import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFile;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationRolesForMigration;
 import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.api.internal.artifacts.transform.UnzipTransform;
 import org.gradle.api.internal.file.FileFactory;
@@ -128,7 +127,7 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
     }
 
     @Inject
-    abstract FileFactory getFileFactory();
+    public abstract FileFactory getFileFactory();
 
     @Override
     public void apply(final Project project) {
@@ -160,8 +159,8 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
 
         project.getDependencies().getAttributesSchema().attribute(LINKAGE_ATTRIBUTE).getDisambiguationRules().add(LinkageSelectionRule.class);
 
-        addOutgoingConfigurationForLinkUsage(components, configurations);
-        addOutgoingConfigurationForRuntimeUsage(components, configurations);
+        addOutgoingConfigurationForLinkUsage(components);
+        addOutgoingConfigurationForRuntimeUsage(components);
 
         addPublicationsFromVariants(project, components);
     }
@@ -341,12 +340,9 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
         });
     }
 
-    private void addOutgoingConfigurationForLinkUsage(SoftwareComponentContainer components, final RoleBasedConfigurationContainerInternal configurations) {
+    private void addOutgoingConfigurationForLinkUsage(SoftwareComponentContainer components) {
         components.withType(ConfigurableComponentWithLinkUsage.class, component -> {
-            Names names = component.getNames();
-
-            Configuration linkElements = configurations.migratingUnlocked(names.withSuffix("linkElements"), ConfigurationRolesForMigration.CONSUMABLE_DEPENDENCY_SCOPE_TO_CONSUMABLE);
-            linkElements.extendsFrom(component.getImplementationDependencies());
+            Configuration linkElements = component.getFeature().getLinktimeElements();
             AttributeContainer attributes = component.getLinkAttributes();
             copyAttributesTo(attributes, linkElements);
 
@@ -356,13 +352,9 @@ public abstract class NativeBasePlugin implements Plugin<Project> {
         });
     }
 
-    private void addOutgoingConfigurationForRuntimeUsage(SoftwareComponentContainer components, final RoleBasedConfigurationContainerInternal configurations) {
+    private void addOutgoingConfigurationForRuntimeUsage(SoftwareComponentContainer components) {
         components.withType(ConfigurableComponentWithRuntimeUsage.class, component -> {
-            Names names = component.getNames();
-
-            Configuration runtimeElements = configurations.migratingUnlocked(names.withSuffix("runtimeElements"), ConfigurationRolesForMigration.CONSUMABLE_DEPENDENCY_SCOPE_TO_CONSUMABLE);
-            runtimeElements.extendsFrom(component.getImplementationDependencies());
-
+            Configuration runtimeElements = component.getFeature().getRuntimeElements();
             AttributeContainer attributes = component.getRuntimeAttributes();
             copyAttributesTo(attributes, runtimeElements);
 

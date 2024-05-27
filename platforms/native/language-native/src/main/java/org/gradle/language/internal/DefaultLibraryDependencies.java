@@ -17,36 +17,50 @@
 package org.gradle.language.internal;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ExternalModuleDependency;
-import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
 import org.gradle.language.LibraryDependencies;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 public class DefaultLibraryDependencies extends DefaultComponentDependencies implements LibraryDependencies {
-    private final Configuration apiDependencies;
+    private final NativeFeature.Library feature;
 
     @Inject
-    public DefaultLibraryDependencies(RoleBasedConfigurationContainerInternal configurations, String implementationName, String apiName) {
-        super(configurations, implementationName);
-        apiDependencies = configurations.dependencyScopeUnlocked(apiName);
-        getImplementationDependencies().extendsFrom(apiDependencies);
+    public DefaultLibraryDependencies(NativeFeature.Library feature) {
+        super(feature);
+        this.feature = feature;
     }
 
-    public Configuration getApiDependencies() {
-        return apiDependencies;
+    @Override
+    @Nonnull
+    public NativeFeature.Library getFeature() {
+        return feature;
     }
 
     @Override
     public void api(Object notation) {
-        apiDependencies.getDependencies().add(getDependencyHandler().create(notation));
+        getFeature().getApi().getDependencies().add(getDependencyHandler().create(notation));
     }
 
     @Override
     public void api(Object notation, Action<? super ExternalModuleDependency> action) {
         ExternalModuleDependency dependency = (ExternalModuleDependency) getDependencyHandler().create(notation);
         action.execute(dependency);
-        apiDependencies.getDependencies().add(dependency);
+        getFeature().getApi().getDependencies().add(dependency);
     }
+
+    @Override
+    public void headerOnlyApi(Object notation) {
+        getFeature().getHeaderOnlyApi().getDependencies().add(getDependencyHandler().create(notation));
+    }
+
+    @Override
+    public void headerOnlyApi(Object notation, Action<? super ExternalModuleDependency> action) {
+        ExternalModuleDependency dependency = (ExternalModuleDependency) getDependencyHandler().create(notation);
+        action.execute(dependency);
+        getFeature().getHeaderOnlyApi().getDependencies().add(dependency);
+    }
+
+
 }

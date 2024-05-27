@@ -17,7 +17,6 @@
 package org.gradle.language.cpp;
 
 import org.gradle.api.Action;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
@@ -26,6 +25,7 @@ import org.gradle.language.BinaryCollection;
 import org.gradle.language.ComponentWithBinaries;
 import org.gradle.language.ComponentWithDependencies;
 import org.gradle.language.ComponentWithTargetMachines;
+import org.gradle.language.internal.NativeFeature;
 
 /**
  * Configuration for a C++ component, such as a library or executable, defining the source files and private header directories that make up the component. Private headers are those that are visible only to the source files of the component.
@@ -82,9 +82,9 @@ public interface CppComponent extends ComponentWithBinaries, ComponentWithDepend
     FileTree getHeaderFiles();
 
     /**
-     * Returns the implementation dependencies of this component.
+     * Returns the native feature of this component.
      */
-    Configuration getImplementationDependencies();
+    NativeFeature getFeature();
 
     /**
      * Returns the binaries for this library.
