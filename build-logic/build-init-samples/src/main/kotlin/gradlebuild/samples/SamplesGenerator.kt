@@ -45,7 +45,7 @@ object SamplesGenerator {
         val groovyDslSettings = InitSettings(projectName, false, descriptor.componentType.defaultProjectNames, modularization, BuildInitDsl.GROOVY, packageName, testFramework, target.dir("groovy"))
         val kotlinDslSettings = InitSettings(projectName, false, descriptor.componentType.defaultProjectNames, modularization, BuildInitDsl.KOTLIN, packageName, testFramework, target.dir("kotlin"))
 
-        val specificContentId = if (descriptor.language === Language.CPP || descriptor.language === Language.SWIFT) {
+        val specificContentId = if (descriptor.language === Language.CPP) {
             "native-" + descriptor.componentType.toString()
         } else {
             descriptor.componentType.toString()
@@ -101,14 +101,6 @@ object SamplesGenerator {
         │       └── app.h"""
                 testSourceFileTree = "                └── $testSourceFile"
             }
-            descriptor.language === Language.SWIFT -> {
-                exampleClass = if (descriptor.componentType === ComponentType.LIBRARY) "Hello" else "Greeter"
-                sourceFile = (if (descriptor.componentType === ComponentType.LIBRARY) "Hello" else "main") + ".swift"
-                testSourceFile = exampleClass + "Tests.swift"
-                sourceFileTree = "        │       └── $sourceFile"
-                testSourceFileTree = """                └── $testSourceFile
-                └── LinuxMain.swift"""
-            }
             else -> {
                 sourceFile = "demo/" + exampleClass + "." + descriptor.language.extension
                 testSourceFile = "demo/" + exampleClass + testFileSuffix + "." + descriptor.language.extension
@@ -129,9 +121,6 @@ Enter selection (default: JUnit 4) [1..4]
 """ else ""
         val packageNameChoice = if (descriptor.supportsPackage()) "Source package (default: demo):\n" else ""
         val toolChain = when {
-            descriptor.language === Language.SWIFT -> {
-                "* An installed Swift compiler. See which link:{userManualPath}/building_swift_projects.html#sec:swift_supported_tool_chain[Swift tool chains] are supported by Gradle."
-            }
             descriptor.language === Language.CPP -> {
                 "* An installed {cpp} compiler. See which link:{userManualPath}/building_cpp_projects.html#sec:cpp_supported_tool_chain[{cpp} tool chains] are supported by Gradle."
             }
@@ -149,9 +138,6 @@ Enter selection (default: JUnit 4) [1..4]
         val configurationCacheCompatibility = when (descriptor.language) {
             Language.CPP -> {
                 "WARNING: The {cpp} $pluginType Plugin is not compatible with the $configurationCacheCompatMatrixLink[configuration cache]."
-            }
-            Language.SWIFT -> {
-                "WARNING: The Swift $pluginType Plugin is not compatible with the $configurationCacheCompatMatrixLink[configuration cache]."
             }
             else -> {
                 ""
@@ -200,7 +186,7 @@ Enter selection (default: JUnit 4) [1..4]
      > Task :$subprojectName:checkKotlinGradlePluginConfigurationErrors
 
         """.trimIndent() else ""
-        val nativeTestTaskPrefix = if (descriptor.language === Language.SWIFT) "xc" else "run"
+        val nativeTestTaskPrefix = "run"
         val classesUpToDate = if (descriptor.language === Language.KOTLIN) " UP-TO-DATE" else ""
         projectLayoutSetupRegistry.templateOperationFactory.newTemplateOperation()
             .withTemplate(templateFolder.template("$templateFragment-build.out"))

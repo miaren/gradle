@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package org.gradle.ide.xcode.internal.xcodeproj;
+package org.gradle.nativeplatform;
 
 /**
- * Build configuration containing a file reference ton an xcconfig file and additional inline
- * settings.
+ * @author matis
  */
-public class XCBuildConfiguration extends PBXBuildStyle {
-    public XCBuildConfiguration(String name) {
-        super(name);
-    }
-
-    @Override
-    public String isa() {
-        return "XCBuildConfiguration";
-    }
+public enum LinkableObjectLinkType {
+    /**
+     * (Default) strong dependencies must be present at runtime.
+     */
+    STRONG,
+    /**
+     * Weak dependencies may be missing at runtime.
+     */
+    WEAK,
+    /**
+     * Upward dependencies are provided by the caller.
+     * Most usages of this imply that the product only be used with dlopen().
+     */
+    UPWARD
 }

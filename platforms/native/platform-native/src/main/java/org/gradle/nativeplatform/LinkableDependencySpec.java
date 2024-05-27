@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 
+package org.gradle.nativeplatform;
+
 /**
- * Task classes for XCode.
+ * Describes how dependencies are meant to be linked.
  *
- * @since 4.2
+ * @author matis
  */
-@org.gradle.api.Incubating
-package org.gradle.ide.xcode.tasks;
+public interface LinkableDependencySpec {
+
+    /**
+     * Return the name of the object being linked.
+     */
+    String getName();
+
+    boolean isWholeArchive();
+
+    /**
+     * Return true if the object being linked is a framework.
+     */
+    boolean isFramework();
+
+    LinkableObjectLinkType getLinkType();
+
+}

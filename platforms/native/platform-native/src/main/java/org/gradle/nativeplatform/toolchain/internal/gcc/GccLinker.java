@@ -20,7 +20,10 @@ import org.gradle.api.Action;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.operations.BuildOperationQueue;
 import org.gradle.internal.work.WorkerLeaseService;
-import org.gradle.nativeplatform.internal.LinkerSpec;
+import org.gradle.nativeplatform.ConfigurableLinkableDependencySpec;
+import org.gradle.nativeplatform.internal.DefaultConfigurableLinkableDependencySpec;
+import org.gradle.nativeplatform.internal.DefaultLinkerSpec;
+import org.gradle.nativeplatform.LinkableDependencySpec;
 import org.gradle.nativeplatform.internal.SharedLibraryLinkerSpec;
 import org.gradle.nativeplatform.platform.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.internal.AbstractCompiler;
@@ -32,15 +35,14 @@ import org.gradle.nativeplatform.toolchain.internal.CommandLineToolInvocationWor
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
-class GccLinker extends AbstractCompiler<LinkerSpec> {
+class GccLinker extends AbstractCompiler<DefaultLinkerSpec> {
     GccLinker(BuildOperationExecutor buildOperationExecutor, CommandLineToolInvocationWorker commandLineToolInvocationWorker, CommandLineToolContext invocationContext, boolean useCommandFile, WorkerLeaseService workerLeaseService) {
         super(buildOperationExecutor, commandLineToolInvocationWorker, invocationContext, new GccLinkerArgsTransformer(), useCommandFile, workerLeaseService);
     }
 
     @Override
-    protected Action<BuildOperationQueue<CommandLineToolInvocation>> newInvocationAction(final LinkerSpec spec, List<String> args) {
+    protected Action<BuildOperationQueue<CommandLineToolInvocation>> newInvocationAction(final DefaultLinkerSpec spec, List<String> args) {
         final CommandLineToolInvocation invocation = newInvocation(
             "linking " + spec.getOutputFile().getName(), args, spec.getOperationLogger());
 
@@ -58,12 +60,34 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
         new GccOptionsFileArgsWriter(tempDir).execute(args);
     }
 
-    private static class GccLinkerArgsTransformer implements ArgsTransformer<LinkerSpec> {
+    private static class LinkableDependencyProcessor {
+
+        private List<Action<ConfigurableLinkableDependencySpec>> fActions;
+
+        public LinkableDependencyProcessor(DefaultLinkerSpec spec) {
+            fActions = spec.getLinkableDependencySpecActions();
+        }
+
+        public LinkableDependencySpec process(String name, boolean isFramework) {
+            DefaultConfigurableLinkableDependencySpec spec = new DefaultConfigurableLinkableDependencySpec(name);
+            if (isFramework) {
+                spec.setFramework(true);
+            }
+            for (Action<ConfigurableLinkableDependencySpec> action : fActions) {
+                action.execute(spec);
+            }
+            return spec;
+        }
+
+    }
+
+    private static class GccLinkerArgsTransformer implements ArgsTransformer<DefaultLinkerSpec> {
+
         @Override
-        public List<String> transform(LinkerSpec spec) {
+        public List<String> transform(DefaultLinkerSpec spec) {
             List<String> args = new ArrayList<String>();
 
-            Predicate<File> wholeArchivesPredicate = spec.getWholeArchivesPredicate();
+            LinkableDependencyProcessor dependencyProcessor = new LinkableDependencyProcessor(spec);
 
             args.addAll(spec.getSystemArgs());
 
@@ -80,16 +104,28 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
                 args.add(file.getAbsolutePath());
             }
             for (File file : spec.getLibraries()) {
-                boolean wholeArchive = wholeArchivesPredicate.test(file);
-                if (wholeArchive) {
+                LinkableDependencySpec dep = dependencyProcessor.process(file.getName(), false);
+                if (dep.isWholeArchive()) {
                     if (targetOs.isMacOsX()) {
                         args.add("-Wl,-force_load");
                     } else {
                         args.add("-Wl,-whole-archive");
                     }
                 }
-                args.add(file.getAbsolutePath());
-                if (wholeArchive) {
+                if (targetOs.isMacOsX()) {
+                    switch (dep.getLinkType()) {
+                        case STRONG:
+                            args.add(file.getAbsolutePath());
+                            break;
+                        case WEAK:
+                            args.add("-Wl,-weak-l" + file.getAbsolutePath());
+                            break;
+                        case UPWARD:
+                            args.add("-Wl,-upward-l" + file.getAbsolutePath());
+                            break;
+                    }
+                }
+                if (dep.isWholeArchive()) {
                     if (!targetOs.isMacOsX()) {
                         args.add("-Wl,-no-whole-archive");
                     }
@@ -101,8 +137,19 @@ class GccLinker extends AbstractCompiler<LinkerSpec> {
                     args.add(file.getAbsolutePath());
                 }
                 for (String file : spec.getFrameworks()) {
-                    args.add("-framework");
-                    args.add(file);
+                    LinkableDependencySpec dep = dependencyProcessor.process(file, true);
+                    switch (dep.getLinkType()) {
+                        case STRONG:
+                            args.add("-framework");
+                            args.add(file);
+                            break;
+                        case WEAK:
+                            args.add("-Wl,-weak_framework," + file);
+                            break;
+                        case UPWARD:
+                            args.add("-Wl,-upward_framework," + file);
+                            break;
+                    }
                 }
             }
             if (!spec.getLibraryPath().isEmpty()) {

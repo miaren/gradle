@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package org.gradle.ide.xcode;
+package org.gradle.nativeplatform;
 
 /**
- * A xcode project, created from C++ or Swift capable project.
+ * Allows customizing how dependencies are meant to be linked.
  *
- * @since 4.2
- * @see <a href="https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Projects.html">XCode Project Concept</a>
+ * @author matis
  */
-public interface XcodeProject {
+public interface ConfigurableLinkableDependencySpec extends LinkableDependencySpec {
+
+    void setWholeArchive(boolean wholeArchive);
+
+    void setLinkType(LinkableObjectLinkType linkType);
+
 }

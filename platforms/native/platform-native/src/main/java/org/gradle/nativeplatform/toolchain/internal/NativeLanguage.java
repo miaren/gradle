@@ -30,11 +30,5 @@ public enum NativeLanguage {
         public String toString() {
             return "C++";
         }
-    },
-    SWIFT() {
-        @Override
-        public String toString() {
-            return "Swift";
-        }
     };
 }

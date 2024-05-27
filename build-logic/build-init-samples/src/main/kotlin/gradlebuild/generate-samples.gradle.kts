@@ -23,7 +23,6 @@ import org.gradle.buildinit.plugins.internal.modifiers.Language.GROOVY
 import org.gradle.buildinit.plugins.internal.modifiers.Language.JAVA
 import org.gradle.buildinit.plugins.internal.modifiers.Language.KOTLIN
 import org.gradle.buildinit.plugins.internal.modifiers.Language.SCALA
-import org.gradle.buildinit.plugins.internal.modifiers.Language.SWIFT
 import org.gradle.buildinit.plugins.internal.modifiers.ModularizationOption
 import org.gradle.docs.samples.Dsl
 
@@ -31,7 +30,7 @@ plugins {
     id("org.gradle.samples")
 }
 
-val singleProjectSampleLanguages = listOf(JAVA, GROOVY, SCALA, KOTLIN, SWIFT, CPP)
+val singleProjectSampleLanguages = listOf(JAVA, GROOVY, SCALA, KOTLIN, CPP)
 val multiProjectApplicationSampleLanguages = listOf(JAVA, GROOVY, SCALA, KOTLIN)
 
 singleProjectSampleLanguages.forEach { language ->

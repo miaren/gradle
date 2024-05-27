@@ -41,8 +41,6 @@ import org.gradle.buildinit.plugins.internal.ProjectLayoutSetupRegistry;
 import org.gradle.buildinit.plugins.internal.ResourceDirsGenerator;
 import org.gradle.buildinit.plugins.internal.SimpleGlobalFilesBuildSettingsDescriptor;
 import org.gradle.buildinit.plugins.internal.SourceGeneratingBuildGenerator;
-import org.gradle.buildinit.plugins.internal.SwiftApplicationProjectInitDescriptor;
-import org.gradle.buildinit.plugins.internal.SwiftLibraryProjectInitDescriptor;
 import org.gradle.buildinit.plugins.internal.TemplateLibraryVersionProvider;
 import org.gradle.buildinit.plugins.internal.TemplateOperationFactory;
 import org.gradle.buildinit.plugins.internal.maven.PomProjectInitDescriptor;
@@ -92,8 +90,6 @@ public class ProjectLayoutSetupRegistryFactory {
         registry.add(of(new JavaGradlePluginProjectInitDescriptor(libraryVersionProvider, documentationRegistry), jvmProjectGenerators, libraryVersionProvider));
         registry.add(of(new GroovyGradlePluginProjectInitDescriptor(libraryVersionProvider, documentationRegistry), jvmProjectGenerators, libraryVersionProvider));
         registry.add(of(new KotlinGradlePluginProjectInitDescriptor(libraryVersionProvider, documentationRegistry), jvmProjectGenerators, libraryVersionProvider));
-        registry.add(of(new SwiftApplicationProjectInitDescriptor(templateOperationBuilder, documentationRegistry), commonGenerators, libraryVersionProvider));
-        registry.add(of(new SwiftLibraryProjectInitDescriptor(templateOperationBuilder, documentationRegistry), commonGenerators, libraryVersionProvider));
         return registry;
     }
 

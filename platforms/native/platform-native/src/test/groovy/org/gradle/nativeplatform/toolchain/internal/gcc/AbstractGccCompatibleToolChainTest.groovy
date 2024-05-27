@@ -93,16 +93,6 @@ class AbstractGccCompatibleToolChainTest extends Specification {
         language << [NativeLanguage.ANY, NativeLanguage.CPP]
     }
 
-    def "is unavailable when language is not known"() {
-        given:
-        platform.displayName >> '<unknown>'
-
-        expect:
-        def platformToolChain = toolChain.select(NativeLanguage.SWIFT, platform)
-        !platformToolChain.available
-        getMessage(platformToolChain) == "Don't know how to compile language Swift."
-    }
-
     def "is unavailable when no language tools can be found and building any language"() {
         def compilerMissing = Stub(CommandLineToolSearchResult) {
             isAvailable() >> false

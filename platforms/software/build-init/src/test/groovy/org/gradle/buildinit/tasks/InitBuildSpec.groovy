@@ -242,7 +242,6 @@ class InitBuildSpec extends Specification {
         Language.KOTLIN | JavaLanguageVersion.of(11) | true
         Language.GROOVY | JavaLanguageVersion.of(11) | true
         Language.CPP    | null                       | false
-        Language.SWIFT  | null                       | false
     }
 
     def "gets java-version from property"() {

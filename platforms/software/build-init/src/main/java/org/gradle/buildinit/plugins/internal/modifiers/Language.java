@@ -22,8 +22,7 @@ public enum Language {
     KOTLIN("kotlin", "Kotlin", "kt"),
     GROOVY("Groovy"),
     SCALA("Scala"),
-    CPP("cpp", "C++", "cpp"),
-    SWIFT("swift", "Swift", "swift");
+    CPP("cpp", "C++", "cpp");
 
     private final String displayName;
     private final String name;

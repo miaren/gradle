@@ -16,9 +16,11 @@
 
 package org.gradle.nativeplatform.internal;
 
+import org.gradle.api.Action;
+import org.gradle.nativeplatform.ConfigurableLinkableDependencySpec;
+
 import java.io.File;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * A high level interface to the linker, specifying what is to be linked and how.
@@ -38,25 +40,13 @@ public interface LinkerSpec extends BinaryToolSpec {
 
     void frameworks(Iterable<String> frameworks);
 
-    /**
-     * Specify which static libraries should be included as whole archives (ELF only).
-     */
-    @Deprecated
-    void wholeArchives(Iterable<File> libraries);
-
-    /**
-     * Specify which static libraries should be included as whole archives (ELF only).
-     */
-    void wholeArchives(Predicate<File> predicate);
-
-    Predicate<File> getWholeArchivesPredicate();
+    void eachDependency(Action<ConfigurableLinkableDependencySpec> action);
 
     List<File> getLibraryPath();
 
     void libraryPath(File... libraryPath);
 
     void libraryPath(List<File> libraryPath);
-
 
     List<File> getFrameworkPath();
 

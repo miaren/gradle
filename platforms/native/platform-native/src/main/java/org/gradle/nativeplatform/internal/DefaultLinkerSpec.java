@@ -16,13 +16,14 @@
 
 package org.gradle.nativeplatform.internal;
 
-import com.google.common.collect.ImmutableSet;
+import org.gradle.api.Action;
+import org.gradle.nativeplatform.ConfigurableLinkableDependencySpec;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerSpec {
 
@@ -31,7 +32,7 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     private final List<File> libraryPath = new ArrayList<File>();
     private final List<String> frameworks = new ArrayList<String>();
     private final List<File> frameworkPath = new ArrayList<File>();
-    private Predicate<File> wholeArchivesPredicate = any -> false;
+    private final List<Action<ConfigurableLinkableDependencySpec>> linkableDependencySpecActions = new LinkedList<Action<ConfigurableLinkableDependencySpec>>();
     private File outputFile;
     private boolean debuggable;
 
@@ -66,24 +67,12 @@ public class DefaultLinkerSpec extends AbstractBinaryToolSpec implements LinkerS
     }
 
     @Override
-    @Deprecated
-    public void wholeArchives(Iterable<File> libraries) {
-        ImmutableSet<File> libs = ImmutableSet.of();
-        if (null != libraries)
-            libs = ImmutableSet.copyOf(libraries);
-        wholeArchives(libs::contains);
+    public void eachDependency(Action<ConfigurableLinkableDependencySpec> action) {
+        linkableDependencySpecActions.add(action);
     }
 
-    @Override
-    public void wholeArchives(Predicate<File> predicate) {
-        if (null == predicate)
-            predicate = any -> false;
-        wholeArchivesPredicate = predicate;
-    }
-
-    @Override
-    public Predicate<File> getWholeArchivesPredicate() {
-        return wholeArchivesPredicate;
+    public List<Action<ConfigurableLinkableDependencySpec>> getLinkableDependencySpecActions() {
+        return linkableDependencySpecActions;
     }
 
     @Override
