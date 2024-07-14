@@ -29,7 +29,7 @@ class CheckProject(
         param("teamcity.ui.settings.readOnly", "true")
         // Avoid rebuilding same revision if it's already built on another branch
         param("teamcity.vcsTrigger.runBuildOnSameRevisionInEveryBranch", "false")
-        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%;%ge-td-dogfooding.grdev.net.access.key%")
+        param("env.DEVELOCITY_ACCESS_KEY", "%ge.gradle.org.access.key%")
 
         text(
             "additional.gradle.parameters",
@@ -75,8 +75,8 @@ class CheckProject(
     subProjectsOrder = subProjects
 
     cleanupRule(
-        historyDays = 28,
-        artifactsDays = 14,
+        historyDays = 14,
+        artifactsDays = 7,
         artifactsPatterns = """
                 +:**/*
                 +:$hiddenArtifactDestination/**/*"

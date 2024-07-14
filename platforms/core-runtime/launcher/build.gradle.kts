@@ -22,12 +22,15 @@ errorprone {
 }
 
 dependencies {
+    api(project(":toolchains-jvm-shared"))
+
     implementation(project(":base-services"))
     implementation(project(":functional"))
     implementation(project(":enterprise-operations"))
     implementation(project(":enterprise-workers"))
     implementation(project(":cli"))
     implementation(project(":messaging"))
+    implementation(project(":build-configuration"))
     implementation(project(":build-option"))
     implementation(project(":native"))
     implementation(project(":logging"))
@@ -47,6 +50,7 @@ dependencies {
     implementation(project(":file-watching"))
     implementation(project(":problems-api"))
     implementation(project(":problems"))
+    implementation(project(":declarative-dsl-provider"))
 
     implementation(libs.groovy) // for 'ReleaseInfo.getVersion()'
     implementation(libs.slf4jApi)
@@ -91,6 +95,7 @@ dependencies {
     integTestImplementation(libs.guava)
     integTestImplementation(libs.commonsLang)
     integTestImplementation(libs.commonsIo)
+    integTestImplementation(testFixtures(project(":build-configuration")))
 
     testRuntimeOnly(project(":distributions-core")) {
         because("Tests instantiate DefaultClassLoaderRegistry which requires a 'gradle-plugins.properties' through DefaultPluginModuleRegistry")

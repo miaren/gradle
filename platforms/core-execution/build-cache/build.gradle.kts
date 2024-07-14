@@ -18,7 +18,7 @@ dependencies {
 
     api(libs.jsr305)
 
-    implementation(project(":base-annotations"))
+    api(project(":base-annotations"))
     implementation(libs.commonsIo)
     api(libs.guava)
     implementation(libs.slf4jApi)
@@ -35,6 +35,7 @@ dependencies {
     jmhImplementation(libs.snappy)
 
     testImplementation(testFixtures(project(":base-services")))
+    testImplementation(testFixtures(project(":build-operations")))
     testImplementation(testFixtures(project(":core")))
     testImplementation(testFixtures(project(":snapshots")))
 

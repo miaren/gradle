@@ -29,7 +29,6 @@ import org.gradle.api.internal.file.collections.DirectoryFileTree;
 import org.gradle.api.internal.file.collections.DirectoryFileTreeFactory;
 import org.gradle.api.internal.file.temp.TemporaryFileProvider;
 import org.gradle.api.provider.Provider;
-import org.gradle.cache.internal.DecompressionCoordinator;
 import org.gradle.internal.file.Chmod;
 import org.gradle.internal.file.PathTraversalChecker;
 import org.gradle.internal.hash.FileHasher;
@@ -102,7 +101,7 @@ public class ZipFileTree extends AbstractArchiveFileTree {
         File expandedDir = getExpandedDir();
         decompressionCoordinator.exclusiveAccessTo(expandedDir, () -> {
             AtomicBoolean stopFlag = new AtomicBoolean();
-            try (ZipFile zip = new ZipFile(zipFile)) {
+            try (ZipFile zip = ZipFile.builder().setFile(zipFile).get()) {
                 // The iteration order of zip.getEntries() is based on the hash of the zip entry. This isn't much use
                 // to us. So, collect the entries in a map and iterate over them in alphabetical order.
                 Map<String, ZipArchiveEntry> entries = entriesSortedByName(zip);

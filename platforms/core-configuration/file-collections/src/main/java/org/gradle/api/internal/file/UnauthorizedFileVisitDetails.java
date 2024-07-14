@@ -104,6 +104,7 @@ public class UnauthorizedFileVisitDetails implements FileVisitDetails {
     }
 
     @Override
+    @Deprecated
     public int getMode() {
         throw new UnsupportedOperationException();
     }

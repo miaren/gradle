@@ -25,10 +25,13 @@ import org.gradle.api.internal.tasks.execution.TaskExecutionAccessListener
 import org.gradle.configurationcache.initialization.ConfigurationCacheStartParameter
 import org.gradle.configurationcache.problems.ConfigurationCacheReport
 import org.gradle.configurationcache.serialization.beans.BeanConstructors
+import org.gradle.configurationcache.services.DefaultIsolatedProjectEvaluationListenerProvider
+import org.gradle.configurationcache.services.IsolatedActionCodecsFactory
 import org.gradle.configurationcache.services.RemoteScriptUpToDateChecker
 import org.gradle.execution.ExecutionAccessChecker
 import org.gradle.execution.ExecutionAccessListener
 import org.gradle.internal.buildtree.BuildModelParameters
+import org.gradle.internal.code.UserCodeApplicationContext
 import org.gradle.internal.event.ListenerManager
 import org.gradle.internal.execution.WorkExecutionTracker
 import org.gradle.internal.nativeintegration.filesystem.FileSystem
@@ -65,6 +68,7 @@ class ConfigurationCacheServices : AbstractPluginServiceRegistry() {
             add(InputTrackingState::class.java)
             add(InstrumentedInputAccessListener::class.java)
             add(InstrumentedExecutionAccessListener::class.java)
+            add(IsolatedActionCodecsFactory::class.java)
             addProvider(IgnoredConfigurationInputsProvider)
             addProvider(RemoteScriptUpToDateCheckerProvider)
             addProvider(ExecutionAccessCheckerProvider)
@@ -82,6 +86,7 @@ class ConfigurationCacheServices : AbstractPluginServiceRegistry() {
         registration.run {
             add(ConfigurationCacheHost::class.java)
             add(ConfigurationCacheIO::class.java)
+            addProvider(IsolatedProjectEvaluationListenerProvider)
         }
     }
 
@@ -163,5 +168,10 @@ class ConfigurationCacheServices : AbstractPluginServiceRegistry() {
         private
         fun hasIgnoredPaths(configurationCacheStartParameter: ConfigurationCacheStartParameter): Boolean =
             !configurationCacheStartParameter.ignoredFileSystemCheckInputs.isNullOrEmpty()
+    }
+
+    private
+    object IsolatedProjectEvaluationListenerProvider {
+        fun createIsolatedProjectEvaluationListenerProvider(userCodeApplicationContext: UserCodeApplicationContext) = DefaultIsolatedProjectEvaluationListenerProvider(userCodeApplicationContext)
     }
 }
