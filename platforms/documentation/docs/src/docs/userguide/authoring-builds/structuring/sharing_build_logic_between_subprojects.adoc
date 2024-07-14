@@ -101,7 +101,7 @@ A typical project including `buildSrc` has the following layout:
 ├── buildSrc
 │   ├── src
 │   │   └──main
-│   │      └──kotlin
+│   │      └──groovy
 │   │         └──MyCustomTask.groovy    // <1>
 │   ├── shared.gradle   // <2>
 │   └── build.gradle
@@ -251,16 +251,17 @@ While writing plugins is outside the scope of this section, the recommended way 
 
 Let's take a look at an example project:
 
+====
 [.multi-language-sample]
 =====
-[source, kotlin]
+[source,kotlin]
 ----
 .
 ├── buildSrc
 │   ├── src
 │   │   └──main
 │   │      └──kotlin
-│   │         └──myproject.java-conventions.gradle  // <1>
+│   │         └──myproject.java-conventions.gradle.kts  // <1>
 │   └── build.gradle.kts
 ├── api
 │   ├── src
@@ -282,14 +283,14 @@ Let's take a look at an example project:
 =====
 [.multi-language-sample]
 =====
-[source, groovy]
+[source,groovy]
 ----
 .
 ├── buildSrc
 │   ├── src
 │   │   └──main
-│   │      └──kotlin
-│   │         └──myproject.java-conventions.gradle.kts  // <1>
+│   │      └──groovy
+│   │         └──myproject.java-conventions.gradle  // <1>
 │   └── build.gradle
 ├── api
 │   ├── src
@@ -309,6 +310,7 @@ Let's take a look at an example project:
 <1> Create the `myproject.java-conventions` convention plugin.
 <2> Applies the `myproject.java-conventions` convention plugin.
 =====
+====
 
 This build contains three subprojects:
 

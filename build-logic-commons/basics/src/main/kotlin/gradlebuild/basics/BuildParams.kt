@@ -51,6 +51,7 @@ import gradlebuild.basics.BuildParams.PERFORMANCE_MAX_PROJECTS
 import gradlebuild.basics.BuildParams.PERFORMANCE_TEST_VERBOSE
 import gradlebuild.basics.BuildParams.PREDICTIVE_TEST_SELECTION_ENABLED
 import gradlebuild.basics.BuildParams.RERUN_ALL_TESTS
+import gradlebuild.basics.BuildParams.RETRY_BUILD
 import gradlebuild.basics.BuildParams.RUN_ANDROID_STUDIO_IN_HEADLESS_MODE
 import gradlebuild.basics.BuildParams.RUN_BROKEN_CONFIGURATION_CACHE_DOCS_TESTS
 import gradlebuild.basics.BuildParams.STUDIO_HOME
@@ -66,6 +67,7 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.jvm.toolchain.JvmVendorSpec
+import org.gradle.jvm.toolchain.internal.LocationListInstallationSupplier.JAVA_INSTALLATIONS_PATHS_PROPERTY
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toUpperCaseAsciiOnly
 
 
@@ -117,6 +119,7 @@ object BuildParams {
     const val PERFORMANCE_DEPENDENCY_BUILD_IDS = "org.gradle.performance.dependencyBuildIds"
     const val PERFORMANCE_MAX_PROJECTS = "maxProjects"
     const val RERUN_ALL_TESTS = "rerunAllTests"
+    const val RETRY_BUILD = "retryBuild"
     const val PREDICTIVE_TEST_SELECTION_ENABLED = "enablePredictiveTestSelection"
     const val TEST_DISTRIBUTION_ENABLED = "enableTestDistribution"
     const val TEST_DISTRIBUTION_PARTITION_SIZE = "testDistributionPartitionSizeInSeconds"
@@ -243,6 +246,10 @@ val Project.buildMilestoneNumber: Provider<String>
     get() = gradleProperty(BUILD_MILESTONE_NUMBER)
 
 
+val Project.isRetryBuild: Boolean
+    get() = gradleProperty(RETRY_BUILD).isPresent
+
+
 val Project.buildTimestamp: Provider<String>
     get() = gradleProperty(BUILD_TIMESTAMP)
 
@@ -261,6 +268,9 @@ val Project.maxTestDistributionRemoteExecutors: Int?
 
 val Project.maxTestDistributionLocalExecutors: Int?
     get() = gradleProperty(MAX_TEST_DISTRIBUTION_LOCAL_EXECUTORS).orNull?.toInt()
+
+val Project.toolchainInstallationPaths: String?
+    get() = gradleProperty(JAVA_INSTALLATIONS_PATHS_PROPERTY).orNull
 
 val Project.flakyTestStrategy: FlakyTestStrategy
     get() = gradleProperty(FLAKY_TEST).let {

@@ -13,6 +13,7 @@ java {
 }
 
 dependencies {
+    api("gradlebuild:build-environment")
     api(platform(project(":build-platform")))
 
     implementation("com.google.guava:guava") {

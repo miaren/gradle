@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -139,7 +138,7 @@ public class Install {
 
             forceFetch(tmpZipFile, distributionUrl);
 
-            BufferedReader reader = new BufferedReader(new FileReader(tmpZipFile));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tmpZipFile), "UTF-8"));
             try {
                 return reader.readLine();
             } finally {
@@ -261,6 +260,7 @@ public class Install {
         throw new RuntimeException(message);
     }
 
+    @SuppressWarnings("MixedMutabilityReturnType")
     private List<File> listDirs(File distDir) {
         if (!distDir.exists()) {
             return emptyList();
@@ -289,7 +289,7 @@ public class Install {
             ProcessBuilder pb = new ProcessBuilder("chmod", "755", gradleCommand.getCanonicalPath());
             Process p = pb.start();
             if (p.waitFor() != 0) {
-                BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
                 Formatter stdout = new Formatter();
                 String line;
                 while ((line = is.readLine()) != null) {
