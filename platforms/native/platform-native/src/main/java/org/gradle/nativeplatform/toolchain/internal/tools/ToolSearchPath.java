@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +71,9 @@ public class ToolSearchPath {
     }
 
     private File findExecutable(OperatingSystem operatingSystem, String name) {
-        List<File> path = pathEntries.isEmpty() ? operatingSystem.getPath() : pathEntries;
+        List<File> path = new LinkedList<>(pathEntries);
+        path.addAll(operatingSystem.getPath()); // fallback to os tools.
+
         String exeName = operatingSystem.getExecutableName(name);
         try {
             if (name.contains(File.separator)) {

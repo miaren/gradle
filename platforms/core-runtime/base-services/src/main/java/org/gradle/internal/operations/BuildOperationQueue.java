@@ -16,6 +16,8 @@
 
 package org.gradle.internal.operations;
 
+import javax.annotation.Nullable;
+
 /**
  * An individual active, single use, queue of build operations.
  * <p>
@@ -34,6 +36,14 @@ public interface BuildOperationQueue<T extends BuildOperation> {
      * @param operation operation to execute
      */
     void add(T operation);
+
+    /**
+     * Adds an operation to be executed, potentially executing it instantly.
+     *
+     * @param operation operation to execute
+     */
+    @Nullable
+    BuildOperationToken submit(T operation);
 
     /**
      * Cancels all queued operations in this queue.  Any operations that have started will be allowed to complete.
@@ -55,7 +65,7 @@ public interface BuildOperationQueue<T extends BuildOperation> {
     void setLogLocation(String logLocation);
 
     interface QueueWorker<O extends BuildOperation> {
-        void execute(O buildOperation);
+        void execute(WorkerOperation<O> buildOperation);
         String getDisplayName();
     }
 }

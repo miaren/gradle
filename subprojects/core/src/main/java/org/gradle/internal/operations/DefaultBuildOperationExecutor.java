@@ -157,8 +157,17 @@ public class DefaultBuildOperationExecutor implements BuildOperationExecutor, St
         }
 
         @Override
-        public void execute(O buildOperation) {
-            runner.execute(buildOperation, worker, parent);
+        public void execute(WorkerOperation<O> operation) {
+            CompletableBuildOperationToken token = operation.getToken();
+            runner.execute(operation.getOperation(), (buildOperation, context) -> {
+                try {
+                    worker.execute(buildOperation, context);
+                    token.complete();
+                } catch (Exception ex) {
+                    token.handleException(ex);
+                    throw ex;
+                }
+            }, parent);
         }
     }
 }

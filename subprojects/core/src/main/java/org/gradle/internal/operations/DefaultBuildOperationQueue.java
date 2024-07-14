@@ -44,7 +44,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
     private QueueState queueState = QueueState.Working;
     private int workerCount;
     private int pendingOperations;
-    private final Deque<T> workQueue = new LinkedList<>();
+    private final Deque<WorkerOperation<T>> workQueue = new LinkedList<>();
     private final LinkedList<Throwable> failures = new LinkedList<>();
 
     DefaultBuildOperationQueue(boolean allowAccessToProjectState, WorkerLeaseService workerLeases, Executor executor, QueueWorker<T> queueWorker) {
@@ -55,16 +55,22 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
     }
 
     @Override
-    public void add(final T operation) {
+    public void add(T operation) {
+        DefaultBuildOperationToken unused = submit(operation);
+    }
+
+    @Override
+    public DefaultBuildOperationToken submit(final T operation) {
         lock.lock();
         try {
             if (queueState == QueueState.Done) {
                 throw new IllegalStateException("BuildOperationQueue cannot be reused once it has completed.");
             }
             if (queueState == QueueState.Cancelled) {
-                return;
+                return null;
             }
-            workQueue.add(operation);
+            DefaultBuildOperationToken token = new DefaultBuildOperationToken();
+            workQueue.add(new WorkerOperation<>(operation, token));
             pendingOperations++;
             workAvailable.signalAll();
             if (workerCount == 0 || workerCount < workerLeases.getMaxWorkerCount() - 1) {
@@ -73,6 +79,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
                 executor.execute(new WorkerRunnable());
                 workerCount++;
             }
+            return token;
         } finally {
             lock.unlock();
         }
@@ -187,7 +194,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
         @Override
         public void run() {
             try {
-                T operation;
+                WorkerOperation<T> operation;
                 while ((operation = waitForNextOperation()) != null) {
                     runBatch(operation);
                 }
@@ -199,7 +206,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
         }
 
         @Nullable
-        private T waitForNextOperation() {
+        private WorkerOperation<T> waitForNextOperation() {
             lock.lock();
             try {
                 while (queueState == QueueState.Working && workQueue.isEmpty()) {
@@ -215,7 +222,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
             }
         }
 
-        private void runBatch(final T firstOperation) {
+        private void runBatch(final WorkerOperation<T> firstOperation) {
             // We need to update pending count outside of withLocks() so that we don't have a race
             // condition where the pending count is 0, but a child worker lease is still held when
             // the parent lease is released.
@@ -241,9 +248,9 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
             );
         }
 
-        private int doRunBatch(T firstOperation) {
+        private int doRunBatch(WorkerOperation<T> firstOperation) {
             int operationCount = 0;
-            T operation = firstOperation;
+            WorkerOperation<T> operation = firstOperation;
             while (operation != null) {
                 if (queueState == QueueState.Cancelled) {
                     // If an operation was pulled from the queue, but the queue was cancelled before this operation could start
@@ -258,7 +265,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
         }
 
         @Nullable
-        private T getNextOperation() {
+        private WorkerOperation<T> getNextOperation() {
             lock.lock();
             try {
                 return workQueue.pollFirst();
@@ -267,7 +274,7 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
             }
         }
 
-        private void runOperation(T operation) {
+        private void runOperation(WorkerOperation<T> operation) {
             try {
                 queueWorker.execute(operation);
             } catch (Throwable t) {
@@ -284,4 +291,5 @@ class DefaultBuildOperationQueue<T extends BuildOperation> implements BuildOpera
             }
         }
     }
+
 }

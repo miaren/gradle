@@ -17,6 +17,7 @@
 package org.gradle.nativeplatform.toolchain.internal;
 
 import org.gradle.nativeplatform.internal.BinaryToolSpec;
+import org.gradle.nativeplatform.internal.cppmodules.ModuleSchema;
 
 import java.io.File;
 import java.util.Collection;
@@ -76,6 +77,12 @@ public interface NativeCompileSpec extends BinaryToolSpec {
     boolean isIncrementalCompile();
 
     void setIncrementalCompile(boolean flag);
+
+    boolean isUsingModuleDependencySchema();
+
+    void setModuleDependencySchema(ModuleSchema schema);
+
+    ModuleSchema getModuleDependencySchema();
 
     File getPrefixHeaderFile();
 

@@ -41,8 +41,11 @@ abstract class GccCompilerArgsTransformer<T extends NativeCompileSpec> implement
     }
 
     protected void addToolSpecificArgs(T spec, List<String> args) {
-        Collections.addAll(args, "-x", getLanguage());
-        args.add("-c");
+        if (!spec.isUsingModuleDependencySchema()) {
+            Collections.addAll(args, "-x", getLanguage());
+        }
+
+
         if (spec.isPositionIndependentCode()) {
             if (!spec.getTargetPlatform().getOperatingSystem().isWindows()) {
                 args.add("-fPIC");

@@ -19,6 +19,7 @@ package org.gradle.language.nativeplatform.internal;
 import org.gradle.internal.operations.logging.BuildOperationLogger;
 import org.gradle.nativeplatform.internal.AbstractBinaryToolSpec;
 import org.gradle.nativeplatform.toolchain.internal.NativeCompileSpec;
+import org.gradle.nativeplatform.internal.cppmodules.ModuleSchema;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public abstract class AbstractNativeCompileSpec extends AbstractBinaryToolSpec i
     private File preCompiledHeaderObjectFile;
     private List<File> sourceFilesForPch = new ArrayList<File>();
     private String preCompiledHeader;
+    private ModuleSchema moduleSchema;
 
     @Override
     public List<File> getIncludeRoots() {
@@ -111,6 +113,21 @@ public abstract class AbstractNativeCompileSpec extends AbstractBinaryToolSpec i
     @Override
     public void setIncrementalCompile(boolean flag) {
         incrementalCompile = flag;
+    }
+
+    @Override
+    public boolean isUsingModuleDependencySchema() {
+        return null != moduleSchema;
+    }
+
+    @Override
+    public void setModuleDependencySchema(ModuleSchema schema) {
+        moduleSchema = schema;
+    }
+
+    @Override
+    public ModuleSchema getModuleDependencySchema() {
+        return moduleSchema;
     }
 
     @Override

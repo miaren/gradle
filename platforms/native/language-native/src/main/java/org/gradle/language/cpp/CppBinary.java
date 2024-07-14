@@ -58,6 +58,13 @@ public interface CppBinary extends ComponentWithObjectFiles, ComponentWithDepend
     Attribute<Boolean> EXECUTABLE_ATTRIBUTE = Attribute.of("org.gradle.native.executable", Boolean.class);
 
     /**
+     * Whether the artifact is using C++20 modules.
+     *
+     * @since 8.9 (Miaren)
+     */
+    Attribute<Boolean> MODULAR_ATTRIBUTE = Attribute.of("org.gradle.native.modular", Boolean.class);
+
+    /**
      * Returns the C++ source files of this binary.
      */
     FileCollection getCppSource();

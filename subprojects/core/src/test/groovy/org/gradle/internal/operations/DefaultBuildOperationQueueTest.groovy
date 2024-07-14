@@ -53,7 +53,8 @@ class DefaultBuildOperationQueueTest extends Specification {
     }
 
     static class SimpleWorker implements BuildOperationQueue.QueueWorker<TestBuildOperation> {
-        void execute(TestBuildOperation run) {
+        void execute(WorkerOperation<TestBuildOperation> buildOperation) {
+            def run = buildOperation.operation
             run.run(null)
         }
 

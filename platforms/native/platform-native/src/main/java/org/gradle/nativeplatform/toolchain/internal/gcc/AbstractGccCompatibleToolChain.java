@@ -119,6 +119,10 @@ public abstract class AbstractGccCompatibleToolChain extends ExtendableToolChain
         return metaDataProvider;
     }
 
+    public CompilerOutputFileNamingSchemeFactory getCompilerOutputFileNamingSchemeFactory() {
+        return compilerOutputFileNamingSchemeFactory;
+    }
+
     @Override
     public void target(String platformName) {
         target(platformName, Actions.<NativePlatformToolChain>doNothing());

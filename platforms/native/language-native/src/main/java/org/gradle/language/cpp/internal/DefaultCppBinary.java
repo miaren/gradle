@@ -54,9 +54,11 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
     private final Configuration includePathConfiguration;
     private final Property<CppCompile> compileTaskProperty;
     private final NativeVariantIdentity identity;
+    private final ObjectFactory objects;
 
     public DefaultCppBinary(Names names, ObjectFactory objects, Provider<String> baseName, FileCollection sourceFiles, FileCollection componentHeaderDirs, NativeFeature baseFeature, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider, NativeVariantIdentity identity) {
         super(names, objects, baseFeature);
+        this.objects = objects;
         this.baseName = baseName;
         this.sourceFiles = sourceFiles;
         this.targetPlatform = targetPlatform;
@@ -69,6 +71,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
         includePathConfiguration.getAttributes().attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API));
         includePathConfiguration.getAttributes().attribute(DEBUGGABLE_ATTRIBUTE, identity.isDebuggable());
         includePathConfiguration.getAttributes().attribute(OPTIMIZED_ATTRIBUTE, identity.isOptimized());
+        includePathConfiguration.getAttributes().attribute(MODULAR_ATTRIBUTE, false);
         includePathConfiguration.getAttributes().attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, identity.getTargetMachine().getOperatingSystemFamily());
         includePathConfiguration.getAttributes().attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, identity.getTargetMachine().getArchitecture());
 
@@ -88,7 +91,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
 
         ArtifactView includeDirs = includePathConfiguration.getIncoming().artifactView(viewConfiguration -> {
             viewConfiguration.attributes(attributeContainer -> {
-                attributeContainer.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API));
+                attributeContainer.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.class, Usage.C_PLUS_PLUS_API)); // required for proper transfo.
                 attributeContainer.attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, ArtifactTypeDefinition.DIRECTORY_TYPE);
             });
         });
