@@ -132,7 +132,7 @@ Select test framework:
 Enter selection (default: JUnit Jupiter) [1..4]
 """ else ""
         val packageNameChoice = if (descriptor.supportsPackage()) "\nEnter target Java version (min: 7, default: 21):\n" else ""
-        val applicationStructureChoice = if (descriptor.language === Language.CPP || descriptor.language === Language.SWIFT) "" else """
+        val applicationStructureChoice = if (descriptor.language === Language.CPP) "" else """
 Select application structure:
   1: Single application project
   2: Application and library project
