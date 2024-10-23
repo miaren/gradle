@@ -25,6 +25,7 @@ import org.gradle.api.internal.file.archive.compression.XzArchiver;
 import org.gradle.api.internal.file.archive.compression.ZstdArchiver;
 import org.gradle.api.internal.file.copy.CopyAction;
 import org.gradle.api.tasks.Input;
+import org.gradle.internal.instrumentation.api.annotations.ToBeReplacedByLazyProperty;
 import org.gradle.work.DisableCachingByDefault;
 
 /**
@@ -59,6 +60,7 @@ public abstract class Tar extends AbstractArchiveTask {
      * @return The compression. Never returns null.
      */
     @Input
+    @ToBeReplacedByLazyProperty
     public Compression getCompression() {
         return compression;
     }

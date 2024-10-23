@@ -41,6 +41,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.util.internal.PatternSets
 import org.gradle.configuration.internal.ListenerBuildOperationDecorator
 import org.gradle.internal.Factory
+import org.gradle.internal.build.BuildState
 import org.gradle.internal.instantiation.InstantiatorFactory
 import org.gradle.internal.management.DependencyResolutionManagementInternal
 import org.gradle.internal.resource.DefaultTextFileResourceLoader
@@ -49,6 +50,7 @@ import org.gradle.internal.service.DefaultServiceRegistry
 import org.gradle.internal.service.Provides
 import org.gradle.internal.service.ServiceRegistrationProvider
 import org.gradle.internal.service.scopes.ServiceRegistryFactory
+import org.gradle.invocation.GradleLifecycleActionExecutor
 import org.gradle.model.internal.registry.ModelRegistry
 import org.gradle.test.fixtures.file.TestNameTestDirectoryProvider
 import org.gradle.util.Path
@@ -152,36 +154,42 @@ class DefaultProjectSpec extends Specification {
         rootProject.path == ":"
         rootProject.buildTreePath == ':'
         rootProject.identityPath == Path.ROOT
+        rootProject.projectIdentityPath == rootProject.identityPath
 
         child1.toString() == "project ':child1'"
         child1.displayName == "project ':child1'"
         child1.path == ":child1"
         child1.buildTreePath == ":child1"
         child1.identityPath == Path.path(":child1")
+        child1.projectIdentityPath == child1.identityPath
 
         child2.toString() == "project ':child1:child2'"
         child2.displayName == "project ':child1:child2'"
         child2.path == ":child1:child2"
         child2.buildTreePath == ":child1:child2"
         child2.identityPath == Path.path(":child1:child2")
+        child2.projectIdentityPath == child2.identityPath
 
         nestedRootProject.toString() == "project ':nested'"
         nestedRootProject.displayName == "project ':nested'"
         nestedRootProject.path == ":"
         nestedRootProject.buildTreePath == ":nested"
         nestedRootProject.identityPath == Path.path(":nested")
+        nestedRootProject.projectIdentityPath == nestedRootProject.identityPath
 
         nestedChild1.toString() == "project ':nested:child1'"
         nestedChild1.displayName == "project ':nested:child1'"
         nestedChild1.path == ":child1"
         nestedChild1.buildTreePath == ":nested:child1"
         nestedChild1.identityPath == Path.path(":nested:child1")
+        nestedChild1.projectIdentityPath == nestedChild1.identityPath
 
         nestedChild2.toString() == "project ':nested:child1:child2'"
         nestedChild2.displayName == "project ':nested:child1:child2'"
         nestedChild2.path == ":child1:child2"
         nestedChild2.buildTreePath == ":nested:child1:child2"
         nestedChild2.identityPath == Path.path(":nested:child1:child2")
+        nestedChild2.projectIdentityPath == nestedChild2.identityPath
     }
 
     def "isolated project view preserves the path and build tree path"() {
@@ -250,6 +258,7 @@ class DefaultProjectSpec extends Specification {
         serviceRegistry.add(ArtifactHandler, Mock(ArtifactHandler))
         serviceRegistry.add(FileResolver, Stub(FileResolver))
         serviceRegistry.add(FileCollectionFactory, Stub(FileCollectionFactory))
+        serviceRegistry.add(GradleLifecycleActionExecutor, Stub(GradleLifecycleActionExecutor))
 
         def antBuilder = Mock(AntBuilder)
         serviceRegistry.addProvider(new ServiceRegistrationProvider() {
@@ -276,6 +285,7 @@ class DefaultProjectSpec extends Specification {
         def container = Mock(ProjectState)
         _ * container.projectPath >> (parent == null ? Path.ROOT : parent.projectPath.child(name))
         _ * container.identityPath >> (parent == null ? build.identityPath : build.identityPath.append(parent.projectPath).child(name))
+        _ * container.owner >> Mock(BuildState)
 
         def descriptor = Mock(ProjectDescriptor) {
             getName() >> name
@@ -284,7 +294,7 @@ class DefaultProjectSpec extends Specification {
         }
 
         def scriptResolution = Stub(ProjectScopedScriptResolution) {
-            resolveScriptsForProject(_, _) >> { p, a -> a.get() }
+            resolveScriptsForProject(_, _, _, _) >> { identityPath, buildPath, projectPath, action -> action.get() }
         }
 
         def instantiator = TestUtil.instantiatorFactory().decorateLenient(serviceRegistry)

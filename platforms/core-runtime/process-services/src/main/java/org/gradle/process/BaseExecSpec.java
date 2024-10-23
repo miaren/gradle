@@ -15,6 +15,8 @@
  */
 package org.gradle.process;
 
+import org.gradle.internal.instrumentation.api.annotations.ToBeReplacedByLazyProperty;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -36,6 +38,7 @@ public interface BaseExecSpec extends ProcessForkOptions {
      *
      * @return whether a non-zero exit value is ignored, or an exception thrown
      */
+    @ToBeReplacedByLazyProperty
     boolean isIgnoreExitValue();
 
     /**
@@ -62,6 +65,7 @@ public interface BaseExecSpec extends ProcessForkOptions {
      *
      * @return The standard input stream.
      */
+    @ToBeReplacedByLazyProperty(comment = "Should this be lazy? Probably not, since it's a stream")
     InputStream getStandardInput();
 
     /**
@@ -79,6 +83,7 @@ public interface BaseExecSpec extends ProcessForkOptions {
      *
      * @return The output stream
      */
+    @ToBeReplacedByLazyProperty(comment = "Should this be lazy? Probably not, since it's a stream")
     OutputStream getStandardOutput();
 
     /**
@@ -96,6 +101,7 @@ public interface BaseExecSpec extends ProcessForkOptions {
      *
      * @return The error output stream.
      */
+    @ToBeReplacedByLazyProperty(comment = "Should this be lazy? Probably not, since it's a stream")
     OutputStream getErrorOutput();
 
     /**
@@ -103,5 +109,6 @@ public interface BaseExecSpec extends ProcessForkOptions {
      *
      * @return The full command line, including the executable plus its arguments
      */
+    @ToBeReplacedByLazyProperty
     List<String> getCommandLine();
 }

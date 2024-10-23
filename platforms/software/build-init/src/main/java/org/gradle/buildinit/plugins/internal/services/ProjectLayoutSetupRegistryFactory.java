@@ -43,7 +43,7 @@ import org.gradle.buildinit.plugins.internal.SimpleGlobalFilesBuildSettingsDescr
 import org.gradle.buildinit.plugins.internal.SourceGeneratingBuildGenerator;
 import org.gradle.buildinit.plugins.internal.TemplateLibraryVersionProvider;
 import org.gradle.buildinit.plugins.internal.TemplateOperationFactory;
-import org.gradle.buildinit.plugins.internal.maven.PomProjectInitDescriptor;
+import org.gradle.unexported.buildinit.plugins.internal.maven.PomProjectInitDescriptor;
 import org.gradle.buildinit.plugins.internal.model.Description;
 import org.gradle.workers.WorkerExecutor;
 

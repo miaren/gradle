@@ -13,9 +13,9 @@ java {
 }
 
 dependencies {
-    api(platform(project(":build-platform")))
+    api(platform(projects.buildPlatform))
 
-    implementation(project(":basics"))
+    implementation(projects.basics)
 
     implementation("com.google.code.gson:gson")
 }
