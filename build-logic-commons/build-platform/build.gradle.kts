@@ -19,7 +19,7 @@ val asmVersion = "9.7"
 // To try out better kotlin compilation avoidance and incremental compilation
 // with -Pkotlin.incremental.useClasspathSnapshot=true
 val kotlinVersion = providers.gradleProperty("buildKotlinVersion")
-    .getOrElse(embeddedKotlinVersion)
+    .getOrElse("2.0.10")
 
 dependencies {
     constraints {

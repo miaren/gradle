@@ -9,6 +9,12 @@ tasks.register("check") {
     dependsOn(subprojects.map { "${it.name}:check" })
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.10")
+    }
+}
+
 val clean by tasks.registering {
     val buildLogicPropertiesFile = layout.projectDirectory.file("gradle.properties")
     val rootPropertiesFile = layout.projectDirectory.file("../gradle.properties")

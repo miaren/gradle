@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.config.ApiVersion
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.CompilerConfigurationKey
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.IR
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.JDK_HOME
 import org.jetbrains.kotlin.config.JVMConfigurationKeys.JVM_TARGET
@@ -354,11 +355,13 @@ class LoggingOutputStream(val log: (String) -> Unit) : OutputStream() {
     }
 }
 
+private
+val MESSAGE_COLLECTOR_KEY = CompilerConfigurationKey.create<MessageCollector>("message collector")
 
 private
 fun compilerConfigurationFor(messageCollector: MessageCollector, compilerOptions: KotlinCompilerOptions): CompilerConfiguration =
     CompilerConfiguration().apply {
-        put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+        put(MESSAGE_COLLECTOR_KEY, messageCollector)
         put(JVM_TARGET, compilerOptions.jvmTarget.toKotlinJvmTarget())
         put(JDK_HOME, File(System.getProperty("java.home")))
         put(IR, true)

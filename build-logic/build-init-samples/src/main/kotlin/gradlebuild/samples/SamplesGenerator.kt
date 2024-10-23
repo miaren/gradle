@@ -151,7 +151,6 @@ Enter selection (default: Single application project) [1..2] 1
         else
             "link:{userManualPath}/${descriptor.language.getName()}_plugin.html[${descriptor.language} Plugin]"
 
-        val configurationCacheCompatMatrixLink = "link:{userManualPath}/configuration_cache.html#config_cache:plugins:core"
         val configurationCacheCompatibility = when (descriptor.language) {
             else -> {
                 ""

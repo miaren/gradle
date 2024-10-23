@@ -33,16 +33,19 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import org.gradle.model.internal.asm.AsmConstants.ASM_LEVEL
 import org.gradle.internal.classloader.ClassLoaderUtils
 import org.gradle.internal.classpath.DefaultClassPath
 import org.gradle.internal.hash.Hashing
 import org.gradle.kotlin.dsl.internal.sharedruntime.codegen.KOTLIN_DSL_PACKAGE_PATH
 import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import java.io.File
 
+// Taken from AsmConstants.
+private
+const val ASM_LEVEL: Int = Opcodes.ASM9
 
 @CacheableTask
 abstract class GenerateKotlinExtensionsForGradleApi : DefaultTask() {
