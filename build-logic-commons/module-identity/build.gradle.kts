@@ -6,12 +6,6 @@ description = "Provides a plugin to define the version and name for subproject p
 
 group = "gradlebuild"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
-
 dependencies {
     api(platform(projects.buildPlatform))
 

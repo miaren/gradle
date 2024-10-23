@@ -6,12 +6,6 @@ description = "Provides plugins for configuring miscellaneous things (repositori
 
 group = "gradlebuild"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
-
 dependencies {
     api("gradlebuild:build-environment")
     api(platform(projects.buildPlatform))

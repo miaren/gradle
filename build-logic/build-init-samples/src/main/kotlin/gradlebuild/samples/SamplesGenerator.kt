@@ -151,12 +151,8 @@ Enter selection (default: Single application project) [1..2] 1
         else
             "link:{userManualPath}/${descriptor.language.getName()}_plugin.html[${descriptor.language} Plugin]"
 
-        val pluginType = if (descriptor.componentType === ComponentType.LIBRARY) "Library" else "Application"
         val configurationCacheCompatMatrixLink = "link:{userManualPath}/configuration_cache.html#config_cache:plugins:core"
         val configurationCacheCompatibility = when (descriptor.language) {
-            Language.CPP -> {
-                "WARNING: The {cpp} $pluginType Plugin is not compatible with the $configurationCacheCompatMatrixLink[configuration cache]."
-            }
             else -> {
                 ""
             }
