@@ -33,6 +33,7 @@ import org.gradle.api.tasks.WorkResults;
 import org.gradle.internal.IoActions;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 public class ZipCopyAction implements CopyAction {
 
