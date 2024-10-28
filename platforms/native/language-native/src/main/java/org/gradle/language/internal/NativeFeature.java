@@ -32,6 +32,7 @@ public class NativeFeature {
 
     // Dependency configurations
     private final Configuration implementation;
+    private final Configuration headerOnly;
     private final Configuration linkOnly;
     private final Configuration runtimeOnly;
 
@@ -67,6 +68,9 @@ public class NativeFeature {
         runtimePath.extendsFrom(implementation);
         runtimeElements.extendsFrom(implementation);
 
+        headerOnly = configurations.dependencyScopeUnlocked(names.withSuffix("headerOnly"));
+        includePath.extendsFrom(headerOnly);
+
         linkOnly = configurations.dependencyScopeUnlocked(names.withSuffix("linkOnly"));
         includePath.extendsFrom(linkOnly);
         linktimePath.extendsFrom(linkOnly);
@@ -80,6 +84,10 @@ public class NativeFeature {
     @Nonnull
     public Configuration getImplementation() {
         return implementation;
+    }
+
+    public Configuration getHeaderOnly() {
+        return headerOnly;
     }
 
     @Nonnull
