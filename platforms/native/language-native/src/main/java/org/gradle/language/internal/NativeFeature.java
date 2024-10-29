@@ -133,6 +133,7 @@ public class NativeFeature {
     public void extendsFrom(@Nonnull NativeFeature nativeFeature) {
         implementation.extendsFrom(nativeFeature.implementation);
         linkOnly.extendsFrom(nativeFeature.linkOnly);
+        headerOnly.extendsFrom(nativeFeature.headerOnly);
         runtimeOnly.extendsFrom(nativeFeature.runtimeOnly);
     }
 
