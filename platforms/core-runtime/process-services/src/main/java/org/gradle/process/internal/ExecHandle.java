@@ -18,6 +18,7 @@ package org.gradle.process.internal;
 
 import org.gradle.api.Describable;
 import org.gradle.process.ExecResult;
+import org.gradle.process.TerminationMode;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -47,8 +48,14 @@ public interface ExecHandle extends Describable {
 
     /**
      * Aborts the process, blocking until the process has exited. Does nothing if the process has already completed.
+     * Depending on the core-dumping configuration, ABORT or TERMINATE is sent to the process.
      */
     void abort();
+
+    /**
+     * Aborts the process, blocking until the process has exited. Does nothing if the process has already completed.
+     */
+    void abort(TerminationMode mode);
 
     /**
      * Waits for the process to finish. Returns immediately if the process has already completed.

@@ -24,6 +24,7 @@ import org.gradle.internal.UncheckedException;
 import org.gradle.internal.event.ListenerBroadcast;
 import org.gradle.internal.operations.CurrentBuildOperationRef;
 import org.gradle.process.ExecResult;
+import org.gradle.process.TerminationMode;
 import org.gradle.process.internal.shutdown.ShutdownHooks;
 
 import javax.annotation.Nullable;
@@ -315,6 +316,24 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
                     format("Cannot abort process '%s' because it is not in started or detached state", displayName));
             }
             this.execHandleRunner.abortProcess();
+            this.waitForFinish();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void abort(TerminationMode mode) {
+        lock.lock();
+        try {
+            if (stateIn(ExecHandleState.SUCCEEDED, ExecHandleState.FAILED, ExecHandleState.ABORTED)) {
+                return;
+            }
+            if (!stateIn(ExecHandleState.STARTED, ExecHandleState.DETACHED)) {
+                throw new IllegalStateException(
+                    format("Cannot abort process '%s' because it is not in started or detached state", displayName));
+            }
+            this.execHandleRunner.abortProcess(mode);
             this.waitForFinish();
         } finally {
             lock.unlock();

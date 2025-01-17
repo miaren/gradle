@@ -21,6 +21,7 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.internal.operations.BuildOperationRef;
 import org.gradle.internal.operations.CurrentBuildOperationRef;
+import org.gradle.process.TerminationMode;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -58,6 +59,13 @@ public class ExecHandleRunner implements Runnable {
     }
 
     public void abortProcess() {
+        TerminationMode mode = TerminationMode.TERMINATE;
+        if (execHandle.isDumpCoreOnAbort())
+            mode = TerminationMode.ABORT;
+        abortProcess(mode);
+    }
+
+    public void abortProcess(TerminationMode mode) {
         lock.lock();
         try {
             if (aborted) {
@@ -67,8 +75,11 @@ public class ExecHandleRunner implements Runnable {
             if (process != null) {
                 streamsHandler.disconnect();
                 LOGGER.debug("Abort requested. Destroying process: {}.", execHandle.getDisplayName());
-                if (!execHandle.isDumpCoreOnAbort()) {
+                if (mode == TerminationMode.TERMINATE) {
                     process.destroy();
+                    return;
+                } else if (mode == TerminationMode.KILL) {
+                    process.destroyForcibly();
                     return;
                 }
 
