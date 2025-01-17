@@ -20,10 +20,12 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.instrumentation.api.annotations.ToBeReplacedByLazyProperty;
+import org.gradle.process.BaseExecSpec;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.ExecResult;
 import org.gradle.process.ExecSpec;
 import org.gradle.process.ProcessForkOptions;
+import org.gradle.process.TerminationMode;
 import org.gradle.process.internal.DefaultExecSpec;
 import org.gradle.process.internal.ExecAction;
 import org.gradle.process.internal.ExecActionFactory;
@@ -149,15 +151,14 @@ public abstract class AbstractExecTask<T extends AbstractExecTask> extends Conve
     }
 
     @Override
-    public T setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
-        execSpec.setDumpCoreOnAbort(dumpCoreOnAbort);
+    public BaseExecSpec setDefaultTerminationMode(TerminationMode terminationMode) {
+        execSpec.setDefaultTerminationMode(terminationMode);
         return taskType.cast(this);
     }
 
-    @Input
     @Override
-    public boolean isDumpCoreOnAbort() {
-        return execSpec.isDumpCoreOnAbort();
+    public TerminationMode getDefaultTerminationMode() {
+        return execSpec.getDefaultTerminationMode();
     }
 
     /**

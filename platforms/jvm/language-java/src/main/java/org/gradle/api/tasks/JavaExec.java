@@ -34,13 +34,13 @@ import org.gradle.internal.jvm.DefaultModularitySpec;
 import org.gradle.jvm.toolchain.JavaLauncher;
 import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.jvm.toolchain.internal.JavaExecutableUtils;
-import org.gradle.process.BaseExecSpec;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaDebugOptions;
 import org.gradle.process.JavaExecSpec;
 import org.gradle.process.JavaForkOptions;
 import org.gradle.process.ProcessForkOptions;
+import org.gradle.process.TerminationMode;
 import org.gradle.process.internal.DefaultJavaExecSpec;
 import org.gradle.process.internal.ExecActionFactory;
 import org.gradle.process.internal.JavaExecAction;
@@ -754,14 +754,14 @@ public abstract class JavaExec extends ConventionTask implements JavaExecSpec {
     }
 
     @Override
-    public BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
-        javaExecSpec.setDumpCoreOnAbort(dumpCoreOnAbort);
+    public JavaExec setDefaultTerminationMode(TerminationMode terminationMode) {
+        javaExecSpec.setDefaultTerminationMode(terminationMode);
         return this;
     }
 
     @Override
-    public boolean isDumpCoreOnAbort() {
-        return javaExecSpec.isDumpCoreOnAbort();
+    public TerminationMode getDefaultTerminationMode() {
+        return javaExecSpec.getDefaultTerminationMode();
     }
 
     /**

@@ -18,6 +18,7 @@ package org.gradle.api.internal.provider.sources.process;
 
 import org.gradle.process.BaseExecSpec;
 import org.gradle.process.ProcessForkOptions;
+import org.gradle.process.TerminationMode;
 
 import java.io.File;
 import java.io.InputStream;
@@ -41,12 +42,25 @@ interface DelegatingBaseExecSpec extends BaseExecSpec {
     }
 
     @Override
+    default BaseExecSpec setDefaultTerminationMode(TerminationMode terminationMode) {
+        getDelegate().setDefaultTerminationMode(terminationMode);
+        return this;
+    }
+
+    @Override
+    default TerminationMode getDefaultTerminationMode() {
+        return getDelegate().getDefaultTerminationMode();
+    }
+
+    @Override
+    @Deprecated
     default BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
         getDelegate().setDumpCoreOnAbort(dumpCoreOnAbort);
         return this;
     }
 
     @Override
+    @Deprecated
     default boolean isDumpCoreOnAbort() {
         return getDelegate().isDumpCoreOnAbort();
     }

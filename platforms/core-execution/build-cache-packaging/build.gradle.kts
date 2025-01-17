@@ -16,8 +16,6 @@ dependencies {
 
     implementation(projects.stdlibJavaExtensions)
     implementation(libs.commonsCompress)
-    implementation(libs.xz)
-    implementation(libs.zstdJni)
     implementation(libs.commonsIo)
     implementation(libs.jsr305)
 

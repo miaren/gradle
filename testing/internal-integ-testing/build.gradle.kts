@@ -110,8 +110,6 @@ dependencies {
 
     implementation(libs.ansiControlSequenceUtil)
     implementation(libs.commonsCompress)
-    implementation(libs.xz)
-    implementation(libs.zstdJni)
     implementation(libs.commonsLang)
     implementation(libs.commonsLang3)
     implementation(libs.commonsIo)

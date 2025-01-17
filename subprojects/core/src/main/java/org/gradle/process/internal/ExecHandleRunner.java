@@ -59,10 +59,7 @@ public class ExecHandleRunner implements Runnable {
     }
 
     public void abortProcess() {
-        TerminationMode mode = TerminationMode.TERMINATE;
-        if (execHandle.isDumpCoreOnAbort())
-            mode = TerminationMode.ABORT;
-        abortProcess(mode);
+        abortProcess(execHandle.getDefaultTerminationMode());
     }
 
     public void abortProcess(TerminationMode mode) {

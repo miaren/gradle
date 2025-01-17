@@ -31,8 +31,8 @@ import org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.conflict
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.selectors.SelectorStateResolver;
 import org.gradle.api.internal.attributes.AttributeContainerInternal;
 import org.gradle.api.internal.attributes.AttributeMergingException;
+import org.gradle.api.internal.attributes.AttributesFactory;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
-import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.internal.component.model.ComponentGraphSpecificResolveState;
 import org.gradle.internal.component.model.ComponentIdGenerator;
 import org.gradle.internal.component.model.DependencyMetadata;
@@ -67,7 +67,7 @@ public class ModuleResolveState implements CandidateModule {
     private final Map<ModuleVersionIdentifier, ComponentState> versions = new LinkedHashMap<>();
     private final ModuleSelectors<SelectorState> selectors;
     private final ConflictResolution conflictResolution;
-    private final ImmutableAttributesFactory attributesFactory;
+    private final AttributesFactory attributesFactory;
     private final Comparator<Version> versionComparator;
     private final VersionParser versionParser;
     final ResolveOptimizations resolveOptimizations;
@@ -89,7 +89,7 @@ public class ModuleResolveState implements CandidateModule {
         ComponentIdGenerator idGenerator,
         ModuleIdentifier id,
         ComponentMetaDataResolver metaDataResolver,
-        ImmutableAttributesFactory attributesFactory,
+        AttributesFactory attributesFactory,
         Comparator<Version> versionComparator,
         VersionParser versionParser,
         SelectorStateResolver<ComponentState> selectorStateResolver,
@@ -386,17 +386,39 @@ public class ModuleResolveState implements CandidateModule {
         return platformState != null && !platformState.getParticipatingModules().isEmpty();
     }
 
-    void decreaseHardEdgeCount(NodeState removalSource) {
-        pendingDependencies.decreaseHardEdgeCount();
-        if (pendingDependencies.isPending()) {
-            // Back to being a pending dependency
-            // Clear remaining incoming edges, as they must be all from constraints
-            if (selected != null) {
-                for (NodeState node : selected.getNodes()) {
-                    node.clearConstraintEdges(pendingDependencies, removalSource);
-                }
+    void disconnectIncomingEdge(NodeState removalSource, EdgeState incomingEdge) {
+        removeUnattachedEdge(incomingEdge);
+        if (!incomingEdge.isConstraint()) {
+            pendingDependencies.decreaseHardEdgeCount();
+            if (pendingDependencies.isPending()) {
+                // We are back to pending, since we no longer have any hard edges targeting us.
+                // All incoming constraint edges must now be removed.
+                clearIncomingAttachedConstraints(removalSource);
+                clearIncomingUnattachedConstraints(removalSource);
             }
         }
+    }
+
+    private void clearIncomingAttachedConstraints(NodeState removalSource) {
+        if (selected != null) {
+            for (NodeState node : selected.getNodes()) {
+                node.clearIncomingConstraints(pendingDependencies, removalSource);
+            }
+        }
+    }
+
+    private void clearIncomingUnattachedConstraints(NodeState removalSource) {
+        for (EdgeState unattachedEdge : unattachedEdges) {
+            assert unattachedEdge.getDependencyMetadata().isConstraint();
+            NodeState from = unattachedEdge.getFrom();
+            if (from != removalSource) {
+                // Only remove edges that come from a different node than the source of the dependency
+                // going back to pending. The edges from the "From" will be removed first.
+                from.removeOutgoingEdge(unattachedEdge);
+            }
+            pendingDependencies.registerConstraintProvider(from);
+        }
+        unattachedEdges.clear();
     }
 
     boolean isPending() {

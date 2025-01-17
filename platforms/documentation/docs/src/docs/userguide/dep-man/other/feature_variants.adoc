@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Gradle, Inc.
+// Copyright (C) 2024 Gradle, Inc.
 //
 // Licensed under the Creative Commons Attribution-Noncommercial-ShareAlike 4.0 International License.;
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 // limitations under the License.
 
 :maven-optional-deps: https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html[Maven optional dependencies]
-:metadata-file-spec: https://github.com/gradle/gradle/blob/master/subprojects/docs/src/docs/design/gradle-module-metadata-latest-specification.md
+:metadata-file-spec: https://github.com/gradle/gradle/blob/master/platforms/documentation/docs/src/docs/design/gradle-module-metadata-latest-specification.md
 
 [[feature_variants]]
 = Modeling library features

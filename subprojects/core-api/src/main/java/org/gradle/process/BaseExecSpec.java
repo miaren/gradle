@@ -45,10 +45,26 @@ public interface BaseExecSpec extends ProcessForkOptions {
      * Dump core on program abort.
      *
      * @since 8.6 (Miaren)
+     * @deprecated Use {@link BaseExecSpec#setDefaultTerminationMode}.
      */
-    BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort);
+    @Deprecated
+    default BaseExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
+        if (dumpCoreOnAbort) {
+            setDefaultTerminationMode(TerminationMode.ABORT);
+        } else {
+            setDefaultTerminationMode(TerminationMode.TERMINATE);
+        }
+        return this;
+    }
 
-    boolean isDumpCoreOnAbort();
+    @Deprecated
+    default boolean isDumpCoreOnAbort() {
+        return getDefaultTerminationMode() == TerminationMode.ABORT;
+    }
+
+    BaseExecSpec setDefaultTerminationMode(TerminationMode terminationMode);
+
+    TerminationMode getDefaultTerminationMode();
 
     /**
      * Sets the standard input stream for the process executing the command. The stream is closed after the process

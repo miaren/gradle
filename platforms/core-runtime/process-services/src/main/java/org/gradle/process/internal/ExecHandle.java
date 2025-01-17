@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public interface ExecHandle extends Describable {
 
@@ -53,9 +54,10 @@ public interface ExecHandle extends Describable {
     void abort();
 
     /**
-     * Aborts the process, blocking until the process has exited. Does nothing if the process has already completed.
+     * Aborts the process. Does nothing if the process has already completed.
+     * Unlike {@link ExecHandle#abort}, this does not block.
      */
-    void abort(TerminationMode mode);
+    void kill(TerminationMode mode);
 
     /**
      * Waits for the process to finish. Returns immediately if the process has already completed.
@@ -63,6 +65,13 @@ public interface ExecHandle extends Describable {
      * @return result
      */
     ExecResult waitForFinish();
+
+    /**
+     * Waits for the process to finish. Returns immediately if the process has already completed.
+     *
+     * @return result
+     */
+    ExecResult waitForFinish(long time, TimeUnit unit);
 
     /**
      * Returns the result of the process execution, if it has finished.  If the process has not finished, returns null.

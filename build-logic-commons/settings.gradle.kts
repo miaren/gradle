@@ -50,8 +50,9 @@ rootProject.name = "build-logic-commons"
 gradle.lifecycle.beforeProject {
     pluginManager.withPlugin("java-base") {
         the<JavaPluginExtension>().toolchain {
-            languageVersion = JavaLanguageVersion.of(11)
-            vendor = JvmVendorSpec.ADOPTIUM
+            // if you change this java version please also consider changing .idea/misc.xml#project/component(@project-jdk-name}
+            // Also, there are a lot of other places this should be changed.
+            languageVersion = JavaLanguageVersion.of(17)
         }
     }
 }

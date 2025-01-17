@@ -20,6 +20,7 @@ import org.gradle.internal.file.PathToFileResolver;
 import org.gradle.process.BaseExecSpec;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.ExecSpec;
+import org.gradle.process.TerminationMode;
 
 import javax.inject.Inject;
 import java.io.InputStream;
@@ -30,7 +31,7 @@ import java.util.List;
 public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSpec, ProcessArgumentsSpec.HasExecutable {
 
     private boolean ignoreExitValue;
-    private boolean dumpCoreOnAbort;
+    private TerminationMode defaultTerminationMode = TerminationMode.TERMINATE;
     private final ProcessStreamsSpec streamsSpec = new ProcessStreamsSpec();
     private final ProcessArgumentsSpec argumentsSpec = new ProcessArgumentsSpec(this);
 
@@ -51,7 +52,7 @@ public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSp
 
     static void copyBaseExecSpecTo(BaseExecSpec source, BaseExecSpec target) {
         target.setIgnoreExitValue(source.isIgnoreExitValue());
-        target.setDumpCoreOnAbort(source.isDumpCoreOnAbort());
+        target.setDefaultTerminationMode(source.getDefaultTerminationMode());
         if (source.getStandardInput() != null) {
             target.setStandardInput(source.getStandardInput());
         }
@@ -130,14 +131,14 @@ public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSp
     }
 
     @Override
-    public ExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
-        this.dumpCoreOnAbort = dumpCoreOnAbort;
+    public DefaultExecSpec setDefaultTerminationMode(TerminationMode terminationMode) {
+        this.defaultTerminationMode = terminationMode;
         return this;
     }
 
     @Override
-    public boolean isDumpCoreOnAbort() {
-        return dumpCoreOnAbort;
+    public TerminationMode getDefaultTerminationMode() {
+        return defaultTerminationMode;
     }
 
     @Override

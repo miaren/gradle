@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -94,7 +96,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     private final ProcessLauncher processLauncher;
     private int timeoutMillis;
     private boolean daemon;
-    private final boolean dumpCoreOnAbort;
+    private final TerminationMode defaultTerminationMode;
 
     /**
      * Lock to guard all mutable state
@@ -125,7 +127,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     DefaultExecHandle(String displayName, File directory, String command, List<String> arguments,
                       Map<String, String> environment, StreamsHandler outputHandler, StreamsHandler inputHandler,
                       List<ExecHandleListener> listeners, boolean redirectErrorStream, int timeoutMillis, boolean daemon,
-                      boolean dumpCoreOnAbort, Executor executor, BuildCancellationToken buildCancellationToken) {
+                      TerminationMode defaultTerminationMode, Executor executor, BuildCancellationToken buildCancellationToken) {
         this.displayName = displayName;
         this.directory = directory;
         this.command = command;
@@ -136,7 +138,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
         this.redirectErrorStream = redirectErrorStream;
         this.timeoutMillis = timeoutMillis;
         this.daemon = daemon;
-        this.dumpCoreOnAbort = dumpCoreOnAbort;
+        this.defaultTerminationMode = defaultTerminationMode;
         this.executor = executor;
         this.lock = new ReentrantLock();
         this.stateChanged = lock.newCondition();
@@ -277,7 +279,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
                 try {
                     stateChanged.await();
                 } catch (InterruptedException e) {
-                    execHandleRunner.abortProcess();
+                    execHandleRunner.abortProcess(TerminationMode.KILL);
                     throw UncheckedException.throwAsUncheckedException(e);
                 }
             }
@@ -326,7 +328,7 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     }
 
     @Override
-    public void abort(TerminationMode mode) {
+    public void kill(TerminationMode mode) {
         lock.lock();
         try {
             if (stateIn(ExecHandleState.SUCCEEDED, ExecHandleState.FAILED, ExecHandleState.ABORTED)) {
@@ -337,7 +339,6 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
                     format("Cannot abort process '%s' because it is not in started or detached state", displayName));
             }
             this.execHandleRunner.abortProcess(mode);
-            this.waitForFinish();
         } finally {
             lock.unlock();
         }
@@ -351,7 +352,32 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
                 try {
                     stateChanged.await();
                 } catch (InterruptedException e) {
-                    execHandleRunner.abortProcess();
+                    execHandleRunner.abortProcess(TerminationMode.KILL);
+                    throw UncheckedException.throwAsUncheckedException(e);
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+
+        // At this point:
+        // If in daemon mode, the process has started successfully and all streams to the process have been closed
+        // If in fork mode, the process has completed and all cleanup has been done
+        // In both cases, all asynchronous work for the process has completed and we're done
+
+        return result();
+    }
+
+    @Override
+    public ExecResult waitForFinish(long time, TimeUnit unit) {
+        lock.lock();
+        try {
+            while (!state.isTerminal()) {
+                try {
+                    if (!stateChanged.await(time, unit))
+                        throw UncheckedException.throwAsUncheckedException(new TimeoutException());
+                } catch (InterruptedException e) {
+                    execHandleRunner.abortProcess(TerminationMode.KILL);
                     throw UncheckedException.throwAsUncheckedException(e);
                 }
             }
@@ -428,8 +454,8 @@ public class DefaultExecHandle implements ExecHandle, ProcessSettings {
     }
 
     @Override
-    public boolean isDumpCoreOnAbort() {
-        return dumpCoreOnAbort;
+    public TerminationMode getDefaultTerminationMode() {
+        return defaultTerminationMode;
     }
 
     @Override

@@ -16,6 +16,8 @@
 
 package org.gradle.process.internal;
 
+import org.gradle.process.TerminationMode;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,7 @@ public interface ProcessSettings {
 
     Map<String, String> getEnvironment();
 
-    boolean isDumpCoreOnAbort();
+    TerminationMode getDefaultTerminationMode();
 
     boolean getRedirectErrorStream();
 

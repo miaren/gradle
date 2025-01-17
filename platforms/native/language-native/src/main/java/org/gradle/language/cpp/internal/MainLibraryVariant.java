@@ -25,8 +25,8 @@ import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.ComponentWithVariants;
 import org.gradle.api.component.SoftwareComponent;
 import org.gradle.api.internal.attributes.AttributeContainerInternal;
+import org.gradle.api.internal.attributes.AttributesFactory;
 import org.gradle.api.internal.attributes.ImmutableAttributes;
-import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.component.UsageContext;
 import org.gradle.api.model.ObjectFactory;
@@ -38,11 +38,11 @@ import java.util.Set;
 public class MainLibraryVariant implements ComponentWithVariants, SoftwareComponentInternal {
     private final LinkedHashSet<ConfigurationSoftwareComponentVariant> artifacts = new LinkedHashSet<>();
     private final Configuration dependencies;
-    private final ImmutableAttributesFactory immutableAttributesFactory;
+    private final AttributesFactory immutableAttributesFactory;
     private final DomainObjectSet<SoftwareComponent> variants;
     private final AttributeContainerInternal attributeContainer;
 
-    public MainLibraryVariant(Configuration dependencies, ImmutableAttributesFactory immutableAttributesFactory,
+    public MainLibraryVariant(Configuration dependencies, AttributesFactory immutableAttributesFactory,
                               AttributeContainerInternal attributeContainer, ObjectFactory objectFactory) {
         this.dependencies = dependencies;
         this.immutableAttributesFactory = immutableAttributesFactory;

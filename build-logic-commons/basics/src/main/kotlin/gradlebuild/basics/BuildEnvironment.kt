@@ -91,7 +91,6 @@ object BuildEnvironment {
     val architecture = System.getProperty("os.arch").toLowerCase()
 
     val isCiServer = CI_ENVIRONMENT_VARIABLE in System.getenv()
-    val isTravis = "TRAVIS" in System.getenv()
     val isGhActions = "GITHUB_ACTIONS" in System.getenv()
     val isTeamCity = "TEAMCITY_VERSION" in System.getenv()
     val isTeamCityParallelTestsEnabled
@@ -106,6 +105,7 @@ object BuildEnvironment {
     val isWindows = OperatingSystem.current().isWindows
     val isLinux = OperatingSystem.current().isLinux
     val isMacOsX = OperatingSystem.current().isMacOsX
+    val isFreeBSD = OperatingSystem.current() == OperatingSystem.FREE_BSD
     val isIntel: Boolean = architecture == "x86_64" || architecture == "x86"
     val isSlowInternetConnection
         get() = System.getProperty("slow.internet.connection", "false")!!.toBoolean()

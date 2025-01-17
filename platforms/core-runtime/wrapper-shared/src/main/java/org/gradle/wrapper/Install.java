@@ -110,11 +110,7 @@ public class Install {
 
                 verifyDownloadChecksum(configuration.getDistribution().toASCIIString(), localZipFile, distributionSha256Sum);
 
-                if (localZipFile.getName().endsWith(".tar.xz")) {
-                    unxzLocal(localZipFile, distDir);
-                } else {
-                    unzipLocal(localZipFile, distDir);
-                }
+                unzipLocal(localZipFile, distDir);
                 failed = false;
             } catch (ZipException e) {
                 if (retries >= RETRIES && distributionSha256Sum == null) {
@@ -156,16 +152,6 @@ public class Install {
             unzip(localZipFile, distDir);
         } catch (IOException e) {
             logger.log("Could not unzip " + localZipFile.getAbsolutePath() + " to " + distDir.getAbsolutePath() + ".");
-            logger.log("Reason: " + e.getMessage());
-            throw e;
-        }
-    }
-
-    private void unxzLocal(File localXzFile, File distDir) throws IOException {
-        try {
-            unxz(localXzFile, distDir);
-        } catch (IOException e) {
-            logger.log("Could not unxz " + localXzFile.getAbsolutePath() + " to " + distDir.getAbsolutePath() + ".");
             logger.log("Reason: " + e.getMessage());
             throw e;
         }
@@ -329,17 +315,6 @@ public class Install {
 
         // The directory is now empty so delete it
         return dir.delete();
-    }
-
-    private void unxz(File xzArchive, File dest) throws IOException {
-        try {
-            new ProcessBuilder()
-                .command("tar", "--extract", "--cd", dest.getCanonicalPath(), "--file", xzArchive.getCanonicalPath())
-                .start()
-                .waitFor();
-        } catch (InterruptedException e) {
-            throw new IOException("Extraction interrupted", e);
-        }
     }
 
     private void unzip(File zip, File dest) throws IOException {

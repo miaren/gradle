@@ -25,9 +25,7 @@ import java.util.List;
 public enum Compression {
     NONE("tar"),
     GZIP("tgz", "gz"),
-    BZIP2("tbz2", "bz2"),
-    XZ("txz", "xz"),
-    ZSTD("tzst", "zst");
+    BZIP2("tbz2", "bz2");
 
     private final String defaultExtension;
     private final List<String> supportedExtensions = new ArrayList<String>(2);

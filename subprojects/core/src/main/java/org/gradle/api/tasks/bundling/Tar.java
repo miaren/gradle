@@ -21,8 +21,6 @@ import org.gradle.api.internal.file.archive.compression.ArchiveOutputStreamFacto
 import org.gradle.api.internal.file.archive.compression.Bzip2Archiver;
 import org.gradle.api.internal.file.archive.compression.GzipArchiver;
 import org.gradle.api.internal.file.archive.compression.SimpleCompressor;
-import org.gradle.api.internal.file.archive.compression.XzArchiver;
-import org.gradle.api.internal.file.archive.compression.ZstdArchiver;
 import org.gradle.api.internal.file.copy.CopyAction;
 import org.gradle.api.tasks.Input;
 import org.gradle.internal.instrumentation.api.annotations.ToBeReplacedByLazyProperty;
@@ -48,8 +46,6 @@ public abstract class Tar extends AbstractArchiveTask {
         switch(compression) {
             case BZIP2: return Bzip2Archiver.getCompressor();
             case GZIP:  return GzipArchiver.getCompressor();
-            case XZ:  return XzArchiver.getCompressor();
-            case ZSTD:  return ZstdArchiver.getCompressor();
             default:    return new SimpleCompressor();
         }
     }

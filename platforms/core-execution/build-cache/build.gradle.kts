@@ -30,8 +30,6 @@ dependencies {
     jmhImplementation(libs.commonsCompress)
     jmhImplementation(libs.commonsIo)
     jmhImplementation(libs.jtar)
-    jmhImplementation(libs.xz)
-    jmhImplementation(libs.zstdJni)
     jmhImplementation(libs.snappy)
 
     testImplementation(testFixtures(projects.baseServices))

@@ -46,20 +46,21 @@ import java.util.Map;
 @ServiceScope(Scope.BuildSession.class)
 public class TestListenerBuildOperationAdapter implements TestListenerInternal {
 
-    private final Map<TestDescriptor, InProgressExecuteTestBuildOperation> runningTests = new HashMap<TestDescriptor, InProgressExecuteTestBuildOperation>();
+    private final Map<TestDescriptor, InProgressExecuteTestBuildOperation> runningTests = new HashMap<>();
+    private final Clock clock;
     private final BuildOperationListener listener;
     private final BuildOperationIdFactory buildOperationIdFactory;
-    private final Clock clock;
 
-    public TestListenerBuildOperationAdapter(BuildOperationListener listener, BuildOperationIdFactory buildOperationIdFactory, Clock clock) {
+    public TestListenerBuildOperationAdapter(Clock clock, BuildOperationListener listener, BuildOperationIdFactory buildOperationIdFactory) {
+        this.clock = clock;
         this.listener = listener;
         this.buildOperationIdFactory = buildOperationIdFactory;
-        this.clock = clock;
     }
 
     @Override
     public void started(final TestDescriptorInternal testDescriptor, TestStartEvent startEvent) {
         long currentTime = clock.getCurrentTime();
+
         BuildOperationDescriptor testBuildOperationDescriptor = createTestBuildOperationDescriptor(testDescriptor, startEvent);
         runningTests.put(testDescriptor, new InProgressExecuteTestBuildOperation(testBuildOperationDescriptor, currentTime));
         listener.started(testBuildOperationDescriptor, new OperationStartEvent(currentTime));
@@ -67,16 +68,17 @@ public class TestListenerBuildOperationAdapter implements TestListenerInternal {
 
     @Override
     public void completed(TestDescriptorInternal testDescriptor, TestResult testResult, TestCompleteEvent completeEvent) {
-        long currentTime = clock.getCurrentTime();
         InProgressExecuteTestBuildOperation runningOp = runningTests.remove(testDescriptor);
-        listener.finished(runningOp.descriptor, new OperationFinishEvent(runningOp.startTime, currentTime, testResult.getException(), new Result(testResult)));
+        listener.finished(runningOp.descriptor, new OperationFinishEvent(runningOp.startTime, clock.getCurrentTime(), testResult.getException(), new Result(testResult)));
     }
 
     @Override
     public void output(final TestDescriptorInternal testDescriptor, final TestOutputEvent event) {
-        long currentTime = clock.getCurrentTime();
         InProgressExecuteTestBuildOperation runningOp = runningTests.get(testDescriptor);
-        listener.progress(runningOp.descriptor.getId(), new OperationProgressEvent(currentTime, new OutputProgress(event)));
+        if (runningOp == null) {
+            throw new IllegalStateException("Received output for test that is not running: " + testDescriptor);
+        }
+        listener.progress(runningOp.descriptor.getId(), new OperationProgressEvent(clock.getCurrentTime(), new OutputProgress(event)));
     }
 
     private BuildOperationDescriptor createTestBuildOperationDescriptor(TestDescriptor testDescriptor, TestStartEvent testStartEvent) {

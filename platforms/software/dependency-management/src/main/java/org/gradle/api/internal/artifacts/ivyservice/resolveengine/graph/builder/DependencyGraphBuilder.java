@@ -41,7 +41,7 @@ import org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.conflict
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.graph.conflicts.PotentialConflict;
 import org.gradle.api.internal.attributes.AttributeDesugaring;
 import org.gradle.api.internal.attributes.AttributeSchemaServices;
-import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
+import org.gradle.api.internal.attributes.AttributesFactory;
 import org.gradle.api.internal.attributes.immutable.ImmutableAttributesSchema;
 import org.gradle.api.internal.attributes.matching.AttributeMatcher;
 import org.gradle.api.internal.capabilities.CapabilityInternal;
@@ -82,7 +82,7 @@ public class DependencyGraphBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyGraphBuilder.class);
 
     private final ModuleExclusions moduleExclusions;
-    private final ImmutableAttributesFactory attributesFactory;
+    private final AttributesFactory attributesFactory;
     private final AttributeSchemaServices attributeSchemaServices;
     private final AttributeDesugaring attributeDesugaring;
     private final VersionSelectorScheme versionSelectorScheme;
@@ -95,7 +95,7 @@ public class DependencyGraphBuilder {
     @Inject
     public DependencyGraphBuilder(
         ModuleExclusions moduleExclusions,
-        ImmutableAttributesFactory attributesFactory,
+        AttributesFactory attributesFactory,
         AttributeSchemaServices attributeSchemaServices,
         AttributeDesugaring attributeDesugaring,
         VersionSelectorScheme versionSelectorScheme,
@@ -294,6 +294,8 @@ public class DependencyGraphBuilder {
             SelectorState selector = edge.getSelector();
             ModuleResolveState module = selector.getTargetModule();
 
+            // TODO: It is odd that we have to check module.getSelectors().size() here.
+            //       We already have a selector, its module should know about it.
             if (selector.canAffectSelection() && module.getSelectors().size() > 0) {
                 // Have an unprocessed/new selector for this module. Need to re-select the target version (if there are any selectors that can be used).
                 performSelection(resolveState, module);

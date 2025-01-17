@@ -27,6 +27,7 @@ import org.gradle.internal.file.PathToFileResolver;
 import org.gradle.internal.jvm.DefaultModularitySpec;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.process.JavaExecSpec;
+import org.gradle.process.TerminationMode;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -40,7 +41,7 @@ import static org.gradle.process.internal.DefaultExecSpec.copyBaseExecSpecTo;
 public class DefaultJavaExecSpec extends DefaultJavaForkOptions implements JavaExecSpec, ProcessArgumentsSpec.HasExecutable {
 
     private boolean ignoreExitValue;
-    private boolean dumpCoreOnAbort;
+    private TerminationMode defaultTerminationMode = TerminationMode.TERMINATE;
     private final ProcessStreamsSpec streamsSpec = new ProcessStreamsSpec();
     private final ProcessArgumentsSpec argumentsSpec = new ProcessArgumentsSpec(this);
 
@@ -58,7 +59,7 @@ public class DefaultJavaExecSpec extends DefaultJavaForkOptions implements JavaE
         PathToFileResolver resolver,
         FileCollectionFactory fileCollectionFactory
     ) {
-        super(resolver, fileCollectionFactory, objectFactory.newInstance(DefaultJavaDebugOptions.class));
+        super(objectFactory, resolver, fileCollectionFactory);
         this.jvmArguments = objectFactory.listProperty(String.class);
         this.mainClass = objectFactory.property(String.class);
         this.mainModule = objectFactory.property(String.class);
@@ -151,13 +152,13 @@ public class DefaultJavaExecSpec extends DefaultJavaForkOptions implements JavaE
     }
 
     @Override
-    public boolean isDumpCoreOnAbort() {
-        return dumpCoreOnAbort;
+    public TerminationMode getDefaultTerminationMode() {
+        return defaultTerminationMode;
     }
 
     @Override
-    public JavaExecSpec setDumpCoreOnAbort(boolean dumpCoreOnAbort) {
-        this.dumpCoreOnAbort = dumpCoreOnAbort;
+    public DefaultJavaExecSpec setDefaultTerminationMode(TerminationMode defaultTerminationMode) {
+        this.defaultTerminationMode = defaultTerminationMode;
         return this;
     }
 
