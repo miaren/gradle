@@ -1,5 +1,18 @@
 The Gradle team is excited to announce Gradle @version@.
 
+This is the first patch release for Gradle 8.11.
+
+It fixes the following issues:
+
+* [#31268](https://github.com/gradle/gradle/issues/31268) BuildEventsListenerRegistry corrupted with Isolated Projects and parallel configuration
+* [#31282](https://github.com/gradle/gradle/issues/31282) Running executables sporadically fails with ETXTBSY (Text file busy)
+* [#31284](https://github.com/gradle/gradle/issues/31284) ArrayIndexOutOfBoundsException after upgrading to gradle 8.11 when generating problems report
+* [#31310](https://github.com/gradle/gradle/issues/31310) Unable to run Gradle task in 8.10 due to bytecode interception
+
+We recommend users upgrade to @version@ instead of 8.11.
+
+***
+
 In this release, builds using the Configuration Cache can become much faster with opt-in [parallel loading and storing](#config-cache) of cache entries. 
 Additionally, projects created with `gradle init` now enable the Configuration Cache by default.
 
@@ -154,7 +167,7 @@ This report serves as a central location for users to review problems that occur
 
 Plugin authors can use the [Problems API](userguide/implementing_gradle_plugins_binary.html#reporting_problems) to log events specific to their plugins, adding to the Gradle-generated ones.
 
-The report is always generated, even if no issues have been reported. If you do not want to generate this report, you can disable it with the `--no-problems-report` flag.
+The report is not generated if no issues have been reported.  Also, if you do not want to generate this report, you can disable it with the `--no-problems-report` flag.
 
 The console output provides a link to this report, as shown below:
 
@@ -195,7 +208,7 @@ val rootVariant = configurations.runtimeClasspath.incoming
 The updated API allows for more precise traversal of dependency graphs by operating at the variant level instead of the component level.
 For example, traversing dependencies at the variant level allows users to differentiate between a component's production code and its test fixtures.
 
-For more details on how to perform a graph traversal, see [Programmatic Dependency Resolution](userguide/programmatic_dependency_resolution.html).
+For more details on how to perform a graph traversal, see [Programmatic Dependency Resolution](userguide/dependency_graph_resolution.html).
 
 #### API for selecting variants by feature name
 
@@ -237,6 +250,9 @@ dependencies {
     }
 }
 ```
+
+#### Introduced project path accessor on `ProjectDependency`
+This release introduces `ProjectDependency#getPath()` for accessing the identity of the target of a project dependency.
 
 <a name="native-toolchains"></a>
 ### Native toolchains support

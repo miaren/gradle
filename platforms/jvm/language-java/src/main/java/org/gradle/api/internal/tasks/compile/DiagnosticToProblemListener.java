@@ -28,10 +28,8 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.problems.ProblemSpec;
 import org.gradle.api.problems.Problems;
 import org.gradle.api.problems.Severity;
-import org.gradle.api.problems.internal.GeneralDataSpec;
 import org.gradle.api.problems.internal.GradleCoreProblemGroup;
 import org.gradle.api.problems.internal.InternalProblemReporter;
-import org.gradle.api.problems.internal.InternalProblemSpec;
 import org.gradle.api.problems.internal.Problem;
 
 import javax.tools.Diagnostic;
@@ -45,6 +43,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static javax.tools.Diagnostic.NOPOS;
 
 /**
  * A {@link DiagnosticListener} that consumes {@link Diagnostic} messages, and reports them as Gradle {@link Problems}.
@@ -185,7 +185,7 @@ public class DiagnosticToProblemListener implements DiagnosticListener<JavaFileO
     private void addFormattedMessage(ProblemSpec spec, Diagnostic<? extends JavaFileObject> diagnostic) {
         String formatted = messageFormatter.apply(diagnostic);
         System.err.println(formatted);
-        ((InternalProblemSpec) spec).additionalData(GeneralDataSpec.class, data -> data.put("formatted", formatted)); // TODO (donat) Introduce custom additional data type for compilation problems
+        spec.details(formatted);
     }
 
     private static void addDetails(ProblemSpec spec, Diagnostic<? extends JavaFileObject> diagnostic) {
@@ -194,10 +194,6 @@ public class DiagnosticToProblemListener implements DiagnosticListener<JavaFileO
 
         // Contextual label is always the first line of the message
         spec.contextualLabel(messageLines[0]);
-        // If we have some multi-line messages (see compiler.java), we can add the complete message as details
-        if (messageLines.length > 1) {
-            spec.details(message);
-        }
     }
 
     private static void addLocations(ProblemSpec spec, Diagnostic<? extends JavaFileObject> diagnostic) {
@@ -209,14 +205,13 @@ public class DiagnosticToProblemListener implements DiagnosticListener<JavaFileO
 
         // We only set the location if we have a resource to point to
         if (resourceName != null) {
-            spec.fileLocation(resourceName);
             // If we know the line ...
-            if (0 < line) {
+            if (NOPOS != line) {
                 // ... and the column ...
-                if (0 < column) {
+                if (NOPOS != column) {
                     // ... and we know how long the error is (i.e. end - start)
                     // (documentation says that getEndPosition() will be NOPOS if and only if the getPosition() is NOPOS)
-                    if (0 < position) {
+                    if (NOPOS != position) {
                         // ... we can report the line, column, and extent ...
                         spec.lineInFileLocation(resourceName, line, column, end - position);
                     } else {
@@ -227,15 +222,17 @@ public class DiagnosticToProblemListener implements DiagnosticListener<JavaFileO
                     // ... otherwise we can still report the line
                     spec.lineInFileLocation(resourceName, line);
                 }
-            }
+            } else
+                // If we know the offsets ...
+                // (offset doesn't require line and column to be set, hence the separate check)
+                // (documentation says that getEndPosition() will be NOPOS iff getPosition() is NOPOS)
+                if (NOPOS != position && end > position) {
+                    // ... we can report the start and extent
+                    spec.offsetInFileLocation(resourceName, position, end - position);
+                } else {
+                    spec.fileLocation(resourceName);
+                }
 
-            // If we know the offsets ...
-            // (offset doesn't require line and column to be set, hence the separate check)
-            // (documentation says that getEndPosition() will be NOPOS iff getPosition() is NOPOS)
-            if (0 < position) {
-                // ... we can report the start and extent
-                spec.offsetInFileLocation(resourceName, position, end - position);
-            }
         }
     }
 
@@ -249,7 +246,7 @@ public class DiagnosticToProblemListener implements DiagnosticListener<JavaFileO
      */
     private static int clampLocation(long value) {
         if (value > Integer.MAX_VALUE) {
-            return Math.toIntExact(Diagnostic.NOPOS);
+            return Math.toIntExact(NOPOS);
         } else {
             return (int) value;
         }
