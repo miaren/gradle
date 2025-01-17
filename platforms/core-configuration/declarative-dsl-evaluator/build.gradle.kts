@@ -21,7 +21,7 @@ plugins {
     id("gradlebuild.distribution.implementation-kotlin")
     id("gradlebuild.publish-public-libraries")
 
-    embeddedKotlin("plugin.serialization").version("2.0.10")
+    embeddedKotlin("plugin.serialization")
 }
 
 description = "The evaluation pipeline for the Declarative language"
