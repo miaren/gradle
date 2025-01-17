@@ -14,7 +14,7 @@ dependencies {
     implementation(projects.jvm)
     implementation(projects.profiling)
 
-    implementation(kotlin("gradle-plugin"))
+    implementation(kotlin("gradle-plugin") as String) { version { strictly("2.0.10") } }
     implementation("com.autonomousapps:dependency-analysis-gradle-plugin") {
         exclude(group = "com.google.j2objc", module = "j2objc-annotations") // This has no use in Gradle
     }

@@ -21,9 +21,11 @@ dependencies {
     }
 
     implementation(kotlin("compiler-embeddable") as String) {
+        version { strictly("2.0.10") }
         because("Required by KotlinSourceParser")
     }
     implementation(kotlin("gradle-plugin") as String) {
+        version { strictly("2.0.10") }
         because("For manually defined KotlinSourceSet accessor - sourceSets.main.get().kotlin")
     }
 

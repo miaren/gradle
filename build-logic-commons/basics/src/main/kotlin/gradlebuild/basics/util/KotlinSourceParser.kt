@@ -19,6 +19,7 @@ package gradlebuild.basics.util
 
 import gradlebuild.basics.kotlindsl.configureKotlinCompilerForGradleBuild
 import org.gradle.internal.jvm.Jvm
+import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.config.addKotlinSourceRoots
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
@@ -77,7 +78,7 @@ class KotlinSourceParser {
         configureKotlinCompilerIoForWindowsSupport()
         val configuration = CompilerConfiguration().apply {
 
-            put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
+            put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageCollector)
             put(JVMConfigurationKeys.RETAIN_OUTPUT_IN_MEMORY, false)
             put(JVMConfigurationKeys.DISABLE_OPTIMIZATION, true)
             put(CommonConfigurationKeys.MODULE_NAME, "parser")
