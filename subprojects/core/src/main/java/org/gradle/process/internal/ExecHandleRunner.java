@@ -23,8 +23,6 @@ import org.gradle.internal.operations.BuildOperationRef;
 import org.gradle.internal.operations.CurrentBuildOperationRef;
 import org.gradle.process.TerminationMode;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -71,38 +69,35 @@ public class ExecHandleRunner implements Runnable {
             aborted = true;
             if (process != null) {
                 streamsHandler.disconnect();
-                LOGGER.debug("Abort requested. Destroying process: {}.", execHandle.getDisplayName());
-                if (mode == TerminationMode.TERMINATE) {
+
+                if (mode == TerminationMode.DESTROY) {
+                    LOGGER.debug("Abort requested. Destroying process: {}.", execHandle.getDisplayName());
                     process.destroy();
-                    return;
-                } else if (mode == TerminationMode.KILL) {
-                    process.destroyForcibly();
                     return;
                 }
 
-                // Attempt to get the PID (if it's supported by the running JVM).
-                final long pid;
+                Signal signal = Signal.TERM;
+                switch (mode) {
+                    case ABORT:
+                        signal = Signal.ABRT;
+                        break;
+                    case KILL:
+                        signal = Signal.KILL;
+                        break;
+                    case TERMINATE:
+                        signal = Signal.TERM;
+                        break;
+                }
+
+                LOGGER.debug("Abort requested. Sending {} to process: {}.", signal, execHandle.getDisplayName());
+
                 try {
-                    Method toHandleMethod = Process.class.getDeclaredMethod("toHandle");
-                    Object processHandle = toHandleMethod.invoke(process);
-                    Class<?> handleClass = Class.forName("java.lang.ProcessHandle");
-                    Method pidMethod = handleClass.getDeclaredMethod("pid");
-                    pid = (long) pidMethod.invoke(processHandle);
+                    long pid = ProcessKiller.get().kill(process, signal);
+                    LOGGER.info("Sent {} signal to pid: {}", signal, pid);
                 } catch (Exception ex) {
-                    LOGGER.warn("Couldn't get pid of process: {}, falling back to destroy()", ex.getMessage());
-                    process.destroy();
-                    return;
-                }
-
-                try {
-                    // Send an abort signal to force a core dump.
-                    Runtime.getRuntime().exec("kill -6 " + pid);
-                    LOGGER.warn("Sent ABRT signal to pid: {}", pid);
-                } catch (IOException e) {
-                    // Fallback to destroy.
-                    LOGGER.warn("Failed to send ABORT signal to pid: {}, falling back to destroy()", pid, e);
-                    process.destroy();
-                    return;
+                    LOGGER.warn("Couldn't send {} to process: {}, falling back to destroyForcibly()",
+                        signal, execHandle.getDisplayName(), ex);
+                    process.destroyForcibly();
                 }
             }
         } finally {

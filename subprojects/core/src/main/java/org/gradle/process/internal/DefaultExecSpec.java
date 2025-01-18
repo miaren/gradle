@@ -31,7 +31,7 @@ import java.util.List;
 public class DefaultExecSpec extends DefaultProcessForkOptions implements ExecSpec, ProcessArgumentsSpec.HasExecutable {
 
     private boolean ignoreExitValue;
-    private TerminationMode defaultTerminationMode = TerminationMode.TERMINATE;
+    private TerminationMode defaultTerminationMode = TerminationMode.DEFAULT;
     private final ProcessStreamsSpec streamsSpec = new ProcessStreamsSpec();
     private final ProcessArgumentsSpec argumentsSpec = new ProcessArgumentsSpec(this);
 

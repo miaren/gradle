@@ -53,7 +53,7 @@ public class DefaultClientExecHandleBuilder implements ClientExecHandleBuilder, 
     private StreamsHandler inputHandler = DEFAULT_STDIN;
     private String displayName;
     private boolean redirectErrorStream;
-    private TerminationMode defaultTerminationMode = TerminationMode.TERMINATE;
+    private TerminationMode defaultTerminationMode = TerminationMode.DEFAULT;
     private StreamsHandler streamsHandler;
     private int timeoutMillis = Integer.MAX_VALUE;
     protected boolean daemon;

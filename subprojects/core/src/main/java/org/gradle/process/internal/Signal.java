@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package org.gradle.process;
+package org.gradle.process.internal;
 
 /**
  * @author matis
  */
-public enum TerminationMode {
-    /** Use the implementation-specific semantic of {@link Process#destroy()}. */
-    DESTROY,
-    /** Kill & generate a core dump. */
-    ABORT,
-    /** Forcibly terminate. */
-    KILL,
-    /** Gracefully terminate. */
-    TERMINATE;
+public enum Signal {
+    ABRT(6),
+    KILL(9),
+    TERM(15);
 
-    public static final TerminationMode DEFAULT = TerminationMode.DESTROY;
+    private final int number;
+
+    private Signal(int signum) {
+        this.number = signum;
+    }
+
+    public int getNumber() {
+        return number;
+    }
 
 }
