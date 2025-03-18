@@ -39,12 +39,10 @@ dependencies {
     implementation(projects.core)
     implementation(projects.coreApi)
     implementation(projects.coreKotlinExtensions)
+    implementation(projects.logging)
     implementation(projects.serviceLookup)
     implementation(projects.stdlibKotlinExtensions)
 
     implementation(libs.groovy)
     implementation(libs.guava)
-}
-tasks.isolatedProjectsIntegTest {
-    enabled = false
 }

@@ -1,105 +1,71 @@
 {
     "acceptedApiChanges": [
         {
-            "type": "org.gradle.api.artifacts.dsl.DependencyConstraintHandler",
-            "member": "Method org.gradle.api.artifacts.dsl.DependencyConstraintHandler.addProvider(java.lang.String,org.gradle.api.provider.Provider)",
-            "acceptation": "Not incubating as API is cloned from DependencyHandler",
+            "type": "org.gradle.api.distribution.plugins.DistributionBasePlugin",
+            "member": "Class org.gradle.api.distribution.plugins.DistributionBasePlugin",
+            "acceptation": "No need to incubate",
             "changes": [
-                "Method added to interface"
+                "Interface has been added"
             ]
         },
         {
-            "type": "org.gradle.api.artifacts.dsl.DependencyConstraintHandler",
-            "member": "Method org.gradle.api.artifacts.dsl.DependencyConstraintHandler.addProvider(java.lang.String,org.gradle.api.provider.Provider,org.gradle.api.Action)",
-            "acceptation": "Not incubating as API is cloned from DependencyHandler",
-            "changes": [
-                "Method added to interface"
-            ]
-        },
-        {
-            "type": "org.gradle.api.artifacts.dsl.DependencyConstraintHandler",
-            "member": "Method org.gradle.api.artifacts.dsl.DependencyConstraintHandler.addProviderConvertible(java.lang.String,org.gradle.api.provider.ProviderConvertible)",
-            "acceptation": "Not incubating as API is cloned from DependencyHandler",
-            "changes": [
-                "Method added to interface"
-            ]
-        },
-        {
-            "type": "org.gradle.api.artifacts.dsl.DependencyConstraintHandler",
-            "member": "Method org.gradle.api.artifacts.dsl.DependencyConstraintHandler.addProviderConvertible(java.lang.String,org.gradle.api.provider.ProviderConvertible,org.gradle.api.Action)",
-            "acceptation": "Not incubating as API is cloned from DependencyHandler",
-            "changes": [
-                "Method added to interface"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.create(org.gradle.api.tasks.TaskContainer,java.lang.String,kotlin.jvm.functions.Function1)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.creating(org.gradle.api.tasks.TaskContainer,java.lang.Class,kotlin.jvm.functions.Function1)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.creating(org.gradle.api.tasks.TaskContainer,kotlin.jvm.functions.Function1)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.creating(org.gradle.api.tasks.TaskContainer,kotlin.reflect.KClass)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.creating(org.gradle.api.tasks.TaskContainer,kotlin.reflect.KClass,kotlin.jvm.functions.Function1)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.getCreating$annotations(org.gradle.api.tasks.TaskContainer)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.kotlin.dsl.TaskContainerExtensionsKt",
-            "member": "Method org.gradle.kotlin.dsl.TaskContainerExtensionsKt.getCreating(org.gradle.api.tasks.TaskContainer)",
-            "acceptation": "Pulled down method to deprecate it",
-            "changes": [
-                "Method added to public class"
-            ]
-        },
-        {
-            "type": "org.gradle.language.swift.SwiftVersion",
-            "member": "Field SWIFT6",
+            "type": "org.gradle.api.distribution.plugins.DistributionPlugin",
+            "member": "Constructor org.gradle.api.distribution.plugins.DistributionPlugin()",
             "acceptation": "No need to incubate",
             "changes": []
         },
         {
-            "type": "org.gradle.tooling.events.problems.ProblemDefinition",
-            "member": "Method org.gradle.tooling.events.problems.ProblemDefinition.getDocumentationLink()",
-            "acceptation": "Change in incubating API",
+            "type": "org.gradle.api.plugins.SoftwareReportingTasksPlugin",
+            "member": "Class org.gradle.api.plugins.SoftwareReportingTasksPlugin",
+            "acceptation": "Splitting diagnostics into base- and software-",
             "changes": [
-                "From non-null returning to null returning breaking change"
+                "Interface has been added"
+            ]
+        },
+        {
+            "type": "org.gradle.api.plugins.SoftwareReportingTasksPlugin",
+            "member": "Constructor org.gradle.api.plugins.SoftwareReportingTasksPlugin()",
+            "acceptation": "Splitting diagnostics into base- and software-",
+            "changes": []
+        },
+        {
+            "type": "org.gradle.api.tasks.testing.TestReport",
+            "member": "Method org.gradle.api.tasks.testing.TestReport.getBuildOperationExecutor()",
+            "acceptation": "Protected methods intended to be overriden by Gradle, not API",
+            "changes": [
+                "Method is now abstract"
+            ]
+        },
+        {
+            "type": "org.gradle.api.tasks.testing.TestReport",
+            "member": "Method org.gradle.api.tasks.testing.TestReport.getBuildOperationRunner()",
+            "acceptation": "Protected methods intended to be overriden by Gradle, not API",
+            "changes": [
+                "Method is now abstract"
+            ]
+        },
+        {
+            "type": "org.gradle.api.tasks.testing.TestReport",
+            "member": "Method org.gradle.api.tasks.testing.TestReport.getObjectFactory()",
+            "acceptation": "Protected methods intended to be overriden by Gradle, not API",
+            "changes": [
+                "Method is now abstract"
+            ]
+        },
+        {
+            "type": "org.gradle.kotlin.dsl.BuiltinPluginIdExtensionsKt",
+            "member": "Method org.gradle.kotlin.dsl.BuiltinPluginIdExtensionsKt.getDistribution-base(org.gradle.plugin.use.PluginDependenciesSpec)",
+            "acceptation": "Generated extension",
+            "changes": [
+                "Method added to public class"
+            ]
+        },
+        {
+            "type": "org.gradle.kotlin.dsl.BuiltinPluginIdExtensionsKt",
+            "member": "Method org.gradle.kotlin.dsl.BuiltinPluginIdExtensionsKt.getSoftware-reporting-tasks(org.gradle.plugin.use.PluginDependenciesSpec)",
+            "acceptation": "Splitting diagnostics into base- and software-",
+            "changes": [
+                "Method added to public class"
             ]
         }
     ]

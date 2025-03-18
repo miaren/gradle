@@ -53,6 +53,8 @@ import org.gradle.configuration.DefaultImportsReader;
 import org.gradle.configuration.ImportsReader;
 import org.gradle.execution.DefaultWorkValidationWarningRecorder;
 import org.gradle.execution.WorkValidationWarningReporter;
+import org.gradle.groovy.scripts.internal.DefaultScriptSourceHasher;
+import org.gradle.groovy.scripts.internal.ScriptSourceHasher;
 import org.gradle.initialization.BuildCancellationToken;
 import org.gradle.initialization.ClassLoaderRegistry;
 import org.gradle.initialization.DefaultClassLoaderRegistry;
@@ -114,7 +116,6 @@ import org.gradle.model.internal.manage.schema.extract.ModelSchemaAspectExtracti
 import org.gradle.model.internal.manage.schema.extract.ModelSchemaAspectExtractor;
 import org.gradle.model.internal.manage.schema.extract.ModelSchemaExtractionStrategy;
 import org.gradle.model.internal.manage.schema.extract.ModelSchemaExtractor;
-import org.gradle.process.internal.ClientExecHandleBuilderFactory;
 import org.gradle.process.internal.DefaultExecActionFactory;
 import org.gradle.process.internal.ExecFactory;
 import org.gradle.process.internal.health.memory.DefaultJvmMemoryInfo;
@@ -167,7 +168,7 @@ public class GlobalScopeServices extends WorkerSharedGlobalScopeServices {
         BuildOperationListenerManager listenerManager
     ) {
         return new DefaultBuildOperationProgressEventEmitter(
-            clock::getCurrentTime,
+            clock,
             currentBuildOperationRef,
             listenerManager.getBroadcaster()
         );
@@ -302,8 +303,7 @@ public class GlobalScopeServices extends WorkerSharedGlobalScopeServices {
         ObjectFactory objectFactory,
         ExecutorFactory executorFactory,
         TemporaryFileProvider temporaryFileProvider,
-        BuildCancellationToken buildCancellationToken,
-        ClientExecHandleBuilderFactory execHandleFactory
+        BuildCancellationToken buildCancellationToken
     ) {
         return DefaultExecActionFactory.of(
             fileResolver,
@@ -312,8 +312,7 @@ public class GlobalScopeServices extends WorkerSharedGlobalScopeServices {
             executorFactory,
             temporaryFileProvider,
             buildCancellationToken,
-            objectFactory,
-            execHandleFactory
+            objectFactory
         );
     }
 
@@ -381,5 +380,10 @@ public class GlobalScopeServices extends WorkerSharedGlobalScopeServices {
     @Provides
     FailureFactory createFailureFactory() {
         return DefaultFailureFactory.withDefaultClassifier();
+    }
+
+    @Provides
+    ScriptSourceHasher createScriptSourceHasher() {
+        return new DefaultScriptSourceHasher();
     }
 }

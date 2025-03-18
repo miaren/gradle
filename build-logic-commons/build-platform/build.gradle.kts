@@ -15,7 +15,7 @@ val groovyVersion = GroovySystem.getVersion()
 val isGroovy4 = VersionNumber.parse(groovyVersion).major >= 4
 val codenarcVersion = if (isGroovy4) "3.1.0-groovy-4.0" else "3.1.0"
 val spockVersion = if (isGroovy4) "2.2-groovy-4.0" else "2.2-groovy-3.0"
-val asmVersion = "9.7"
+val asmVersion = "9.7.1"
 // To try out better kotlin compilation avoidance and incremental compilation
 // with -Pkotlin.incremental.useClasspathSnapshot=true
 val kotlinVersion = providers.gradleProperty("buildKotlinVersion")
@@ -25,9 +25,9 @@ dependencies {
     constraints {
         api("org.gradle.guides:gradle-guides-plugin:0.23.1")
         api("org.apache.ant:ant:1.10.15") // Bump the version brought in transitively by gradle-guides-plugin
-        api("com.gradle:develocity-gradle-plugin:3.19") // Run `java build-logic-settings/UpdateDevelocityPluginVersion.java <new-version>` to update
+        api("com.gradle:develocity-gradle-plugin:3.19.2") // Run `java build-logic-settings/UpdateDevelocityPluginVersion.java <new-version>` to update
         api("com.gradle.publish:plugin-publish-plugin:1.2.1")
-        api("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.0.1")
+        api("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.10")
         api("me.champeau.gradle:japicmp-gradle-plugin:0.4.1")
         api("me.champeau.jmh:jmh-gradle-plugin:0.7.2")
         api("org.asciidoctor:asciidoctor-gradle-jvm:4.0.2")
